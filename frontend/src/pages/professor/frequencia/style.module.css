@@ -99,3 +99,9 @@
     overflow: hidden;
     align-self: flex-end; 
 }
+
+.info_center{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

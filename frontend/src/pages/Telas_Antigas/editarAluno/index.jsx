@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./style.module.css";
 import Footer from "@/components/Footer/footer";
 import Navbar from "@/components/Navbar/navbar";
-import api from "../../client/api";
+import api from "../../../client/api";
 
 function EditarAluno() {
   const [ativo, setAtivo] = useState(true);

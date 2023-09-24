@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import api from "../../client/api";
+import api from "../../../client/api";
 import styles from "./style.module.css"; // Importe seus estilos aqui
 
 import Navbar from "@/components/Navbar/navbar";
