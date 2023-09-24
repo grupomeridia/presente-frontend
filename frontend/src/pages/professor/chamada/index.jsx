@@ -2,8 +2,20 @@ import { Fundo } from "@/components/Fundo/fundo";
 import styles from "./style.module.css";
 import Navbar from "@/components/Navbar/navbar";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
+import React, { useState } from 'react';
 
 export default function Chamada() {
+
+
+  const [rows, setRows] = useState([
+    { id: 1, turma: 'eng.Software', periodo: 'Pizzaria', projeto: 'Noturno', data: 'Fecha:22:00' }
+  ]);
+
+  const removeRow = (id) => {
+    const newRows = rows.filter(row => row.id !== id);
+    setRows(newRows);
+  };
+  
   return (
     <>
       <Navbar />
@@ -12,47 +24,27 @@ export default function Chamada() {
         <div className={styles.form_center}>
           <div className={styles.form}>
             <h2 className={styles.titulo}>Abrir Chamada</h2>
-            <label className={styles.label} htmlFor="turma"></label>
-            <input
-              className={styles.input}
-              type="text"
-              id="turma"
-              list="turmas"
-              placeholder="Turma"
-            />
-            <datalist id="turmas">
-              <option value="Turma A" />
-              <option value="Turma B" />
-              <option value="Turma C" />
-            </datalist>
+            
+            <select className={styles.input} id="turma">
+              <option value="" disabled selected hidden>Turma</option>
+              <option value="Turma A">Turma A</option>
+              <option value="Turma B">Turma B</option>
+              <option value="Turma C">Turma C</option>
+            </select>
 
-            <label className={styles.label} htmlFor="periodo"></label>
-            <input
-              className={styles.input}
-              type="text"
-              id="periodo"
-              list="periodos"
-              placeholder="Periodo"
-            />
-            <datalist id="periodos">
-              <option value="Manhã" />
-              <option value="Tarde" />
-              <option value="Noite" />
-            </datalist>
+            <select className={styles.input} id="periodo">
+              <option value="" disabled selected hidden>Periodo</option>
+              <option value="Manhã">Manhã</option>
+              <option value="Tarde">Tarde</option>
+              <option value="Noite">Noite</option>
+            </select>
 
-            <label className={styles.label} htmlFor="projeto"></label>
-            <input
-              className={styles.input}
-              type="text"
-              id="projeto"
-              list="projetos"
-              placeholder="Projeto"
-            />
-            <datalist id="projetos">
-              <option value="Projeto 1" />
-              <option value="Projeto 2" />
-              <option value="Projeto 3" />
-            </datalist>
+            <select className={styles.input} id="projeto">
+              <option value="" disabled selected hidden>Projeto</option>
+              <option value="Projeto 1">Projeto 1</option>
+              <option value="Projeto 2">Projeto 2</option>
+              <option value="Projeto 3">Projeto 3</option>
+            </select>
           </div>
           <button className={styles.botao}>ABRIR</button>
         </div>
@@ -68,33 +60,19 @@ export default function Chamada() {
                 <th>Periodo</th>
                 <th>Projeto</th>
                 <th>Data</th>
+                <th>Ação</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>eng.Software</td>
-                <td>Pizzaria</td>
-                <td>Noturno</td>
-                <td>Fecha:22:00</td>
-              </tr>
-              <tr>
-                <td>eng.Software</td>
-                <td>Pizzaria</td>
-                <td>Noturno</td>
-                <td>Fecha:22:00</td>
-              </tr>
-              <tr>
-                <td>eng.Software</td>
-                <td>Pizzaria</td>
-                <td>Noturno</td>
-                <td>Fecha:22:00</td>
-              </tr>
-              <tr>
-                <td>eng.Software</td>
-                <td>Pizzaria</td>
-                <td>Noturno</td>
-                <td>Fecha:22:00</td>
-              </tr>
+              {rows.map(row => (
+                <tr key={row.id}>
+                  <td>{row.turma}</td>
+                  <td>{row.periodo}</td>
+                  <td>{row.projeto}</td>
+                  <td>{row.data}</td>
+                  <td><span onClick={() => removeRow(row.id)}>Fechar</span></td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
