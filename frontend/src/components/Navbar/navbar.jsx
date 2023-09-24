@@ -35,10 +35,10 @@ const Navbar = () => {
 
     if (userType === "professor") {
       return [
-        { name: "Frequência", icon: faHistory, link: "professor/frequencia" },
-        { name: "Chamada", icon: faUserCheck, link: "professor/chamada" },
-        {name: "Presença",icon: faChalkboardTeacher,link: "professor/presenca",},
-        { name: "Lembretes", icon: faBell, link: "professor/lembretes" },
+        { name: "Frequência", icon: faHistory, link: "/professor/frequencia" },
+        { name: "Chamada", icon: faUserCheck, link: "/professor/chamada" },
+        {name: "Presença",icon: faChalkboardTeacher,link: "/professor/presenca",},
+        { name: "Lembretes", icon: faBell, link: "/professor/lembrete" },
       ];
     }
 
