@@ -6,6 +6,7 @@
     height: 400px; */
 }
 
+
 .Bar {
     display: flex;
     align-self: flex-end;
@@ -104,4 +105,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+.info_center h3{
+    font-size: 50px;
+    color: aliceblue;
+    margin: 0;
+    font-family: "Inter";
 }

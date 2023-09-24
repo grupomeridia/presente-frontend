@@ -1,0 +1,43 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: "Inter";
+    color: aliceblue;
+  }
+
+  .form textarea{
+    width: 340px;
+    height: 120px;
+  }
+
+  
+  .form_center{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+
+  }
+
+  /* .titulo{
+    margin-left: 100px;
+  }
+   */
+
+  .input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: 85%;
+  }
+
+  .botao{
+    padding: 10px 60px 10px 60px;
+    margin-bottom: 30px;
+  }
