@@ -85,7 +85,10 @@ export default function Frequencia() {
       <Fundo className={styles.Fundo}>
         <div className={styles.container_center}>
           <div className={styles.tituloGrafico}>
-            <h2>Alunos Presentes</h2>
+            <div className={styles.info_center}>
+              <h2>Presenças Marcadas</h2>
+              <h2>10/50</h2>
+            </div>
           <div className={styles.graficoCircular}>
             <Doughnut data={chartData} options={chartOptions} className={styles.Doughnut} />
           </div>
@@ -95,10 +98,10 @@ export default function Frequencia() {
       <Fundo className={styles.Fundo}>
         <div className={styles.container_center}>
           <div className={styles.tituloGrafico}>
-            <h2>Frequencia Semanal</h2>
           <div className={styles.graficoBar}>
           <Bar data={barChartData} options={barChartOptions} className={styles.Bar} />
           </div>
+            <h2>Frequencia Semanal</h2>
           </div>
         </div>
       </Fundo>

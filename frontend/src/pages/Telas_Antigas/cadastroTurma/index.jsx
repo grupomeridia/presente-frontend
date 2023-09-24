@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styles from "./style.module.css";
 import Navbar from "@/components/Navbar/navbar";
 import Footer from "@/components/Footer/footer";
-import api from "../../client/api";
+import api from "../../../client/api";
 
 function CadastroTurma() {
   const [ativo, setAtivo] = useState(true);
