@@ -10,8 +10,6 @@ import { text } from "@fortawesome/fontawesome-svg-core";
 function historicoAluno(){
 
 
-
-
     return(
         <div>
         <Cabecalho/>
@@ -22,7 +20,7 @@ function historicoAluno(){
                         <div className={styles.dados}>                   
                             <div>
                                 <h1>9</h1>
-                                <p>Chamadas realizadas</p>
+                                <p>Presencas</p>
                             </div>
                             <div>
                                 <h1>1</h1>

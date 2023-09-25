@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 
 const Navbar = () => {
   const [activeItem, setActiveItem] = useState("");
-  const [userType, setUserType] = useState("professor"); // Substitua por 'aluno' ou 'professor' conforme necessário
+  const [userType, setUserType] = useState("aluno"); // Substitua por 'aluno' ou 'professor' conforme necessário
   const [userImage, setUserImage] = useState(""); // lembrar de colocar aqui a imagen dafault
   const router = useRouter();
 
@@ -28,17 +28,17 @@ const Navbar = () => {
   const getMenuItems = () => {
     if (userType === "aluno") {
       return [
-        { name: "Histórico", icon: faHistory, link: "aluno/historico" },
-        { name: "Presença", icon: faUserCheck, link: "aluno/presenca" },
+        { name: "Histórico", icon: faHistory, link: "/aluno/historico" },
+        { name: "Presença", icon: faUserCheck, link: "/aluno/presenca" },
       ];
     }
 
     if (userType === "professor") {
       return [
-        { name: "Frequência", icon: faHistory, link: "professor/frequencia" },
-        { name: "Chamada", icon: faUserCheck, link: "professor/chamada" },
-        {name: "Presença",icon: faChalkboardTeacher,link: "professor/presenca",},
-        { name: "Lembretes", icon: faBell, link: "professor/lembretes" },
+        { name: "Frequência", icon: faHistory, link: "./frequencia" },
+        { name: "Chamada", icon: faUserCheck, link: "./chamada" },
+        {name: "Presença",icon: faChalkboardTeacher,link: "./presenca",},
+        { name: "Lembretes", icon: faBell, link: "./lembretes" },
       ];
     }
 

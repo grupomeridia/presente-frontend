@@ -32,11 +32,21 @@
     text-align: center;
 }
 
+.dados div h1{
+    font-size: 30px;
+    margin: 0px;
+}
+
+.dados div p{
+    font-size: 30px;
+    margin: 10px;
+}
+
 .search_input{
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
-    width: 40%;
+    width: 30%;
 }
 
 .search_input div input{
