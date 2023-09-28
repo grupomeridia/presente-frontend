@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 
 const Navbar = () => {
   const [activeItem, setActiveItem] = useState("");
-  const [userType, setUserType] = useState("aluno"); // Substitua por 'aluno' ou 'professor' conforme necessário
+  const [userType, setUserType] = useState("admin"); // Substitua por 'aluno' ou 'professor' conforme necessário
   const [userImage, setUserImage] = useState(""); // lembrar de colocar aqui a imagen dafault
   const router = useRouter();
 
@@ -35,16 +35,16 @@ const Navbar = () => {
 
     if (userType === "professor") {
       return [
-        { name: "Frequência", icon: faHistory, link: "./frequencia" },
-        { name: "Chamada", icon: faUserCheck, link: "./chamada" },
-        {name: "Presença",icon: faChalkboardTeacher,link: "./presenca",},
-        { name: "Lembretes", icon: faBell, link: "./lembretes" },
+        { name: "Frequência", icon: faHistory, link: "/professor/frequencia" },
+        { name: "Chamada", icon: faUserCheck, link: "/professor/chamada" },
+        {name: "Presença",icon: faChalkboardTeacher,link: "/professor/presenca",},
+        { name: "Lembretes", icon: faBell, link: "/professor/lembrete" },
       ];
     }
 
     if (userType === "admin") {
       return [
-        { name: "Dashboard", icon: faTachometerAlt, link: "/dashboardAdmin" },
+        { name: "Dashboard", icon: faTachometerAlt, link: "/admin/dashboard" },
         { name: "Chamada", icon: faUserCheck, link: "/chamada-admin" },
         { name: "Cadastrar", icon: faUserPlus, link: "/cadastrar" },
         {

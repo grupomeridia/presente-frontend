@@ -48,7 +48,6 @@ function presencaAluno(){
     //         });
     //   };
 
-
     return(
         <div>
        <Cabecalho/>
