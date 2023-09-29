@@ -1,47 +1,34 @@
-import React, { useState } from "react";
-import styles from "./style.module.css"
-
+import React, { useState, useEffect } from "react";
+import styles from "./style.module.css";
 import NavBar from "@/components/Navbar/navbar";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
 import { Fundo } from "@/components/Fundo/fundo";
-
+import { Doughnut, Bar } from "react-chartjs-2";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
-import { Doughnut, Bar } from "react-chartjs-2";
-import { data } from "autoprefixer";
+import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 
 Chart.register(ChartDataLabels);
 
 export default function Dashboard() {
-
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState("");
   const [data, setData] = useState(new Date());
+  const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
+  const [valores, setValores] = useState([50, 150, 80, 50, 90]);
+  const [periodType, setPeriodType] = useState("dia");
 
-  //Grafico circular
-  const [GraficoCircularDataAlunosAusentes, setChartData1] = useState({
-    labels: ["Presentes", "Ausentes"],
-    datasets: [
-      {
-        label: "Alunos",
-        data: [300, 90],
-        backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
-      },
-    ],
-  });
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setData(new Date());
+    }, 1000);
 
-  const [GraficoCircularDataAlunosAtivos, setChartData2] = useState({
-    labels: ["Ativos", "Inativos"],
-    datasets: [
-      {
-        label: "Alunos",
-        data: [300, 100],
-        backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
-      },
-      
-    ],
-  });
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const handleSelectChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
 
   const GraficoCircularOptions = {
     responsive: true,
@@ -49,11 +36,7 @@ export default function Dashboard() {
     plugins: {
       datalabels: {
         formatter: (value, context) => {
-          let sum = 0;
-          let dataArr = context.chart.data.datasets[0].data;
-          dataArr.map((data) => {
-            sum += data;
-          });
+          let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
           let percentage = ((value * 100) / sum).toFixed(2) + "%";
           return percentage;
         },
@@ -61,6 +44,9 @@ export default function Dashboard() {
         anchor: "center",
       },
       legend: {
+        labels: {
+          color: "white",
+        },
         position: "right",
       },
       title: {
@@ -70,9 +56,18 @@ export default function Dashboard() {
     },
   };
 
-  // Grafico Barra
   const GraficoBarraOptions = {
+    plugins: {
+      legend: {
+        labels: {
+          color: "white",
+        },
+      },
+    },
     scales: {
+      x: {
+        color: "red",
+      },
       y: {
         beginAtZero: true,
         ticks: {
@@ -82,17 +77,38 @@ export default function Dashboard() {
           callback: function (value, index, values) {
             return value + "%";
           },
-          color:'white'
+          color: "white",
         },
       },
     },
   };
 
-  const valores = [50, 150, 80, 50, 90];
   const ajusteValores = valores.map((value) => Math.min(value, 100));
 
-  const GraficoBarraData = {
-    labels: ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"],
+  const GraficoCircularDataAlunosAusentes = {
+    labels: ["Presentes", "Ausentes"],
+    datasets: [
+      {
+        label: "Alunos",
+        data: [300, 90],
+        backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
+      },
+    ],
+  };
+
+  const GraficoCircularDataAlunosAtivos = {
+    labels: ["Ativos", "Inativos"],
+    datasets: [
+      {
+        label: "Alunos",
+        data: [300, 100],
+        backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
+      },
+    ],
+  };
+
+  const GraficoBarraDataAtivos = {
+    labels: labelGraf,
     datasets: [
       {
         label: "Frequencia",
@@ -100,13 +116,37 @@ export default function Dashboard() {
         backgroundColor: "white",
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
-        barThickness: 100
+        barThickness: 100,
       },
     ],
   };
 
-  const handleSelectChange = (event) => {
-    setSelectedOption(event.target.value);
+  const GraficoBarraDataAusentes = {
+    labels: labelGraf,
+    datasets: [
+      {
+        label: "Frequencia",
+        data: ajusteValores,
+        backgroundColor: "white",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+        barThickness: 100,
+      },
+    ],
+  };
+
+  const handlePeriodButtonClick = (period) => {
+    setPeriodType(period);
+    if (period === "dia") {
+      setLabelGraf(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
+      // Atualize os dados do gráfico para o período "dia"
+    } else if (period === "semana") {
+      setLabelGraf(["1", "2", "3", "4", "5"]);
+      // Atualize os dados do gráfico para o período "semana"
+    } else if (period === "mes") {
+      setLabelGraf(["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]);
+      // Atualize os dados do gráfico para o período "mês"
+    }
   };
 
   return (
@@ -117,7 +157,7 @@ export default function Dashboard() {
         <section className={styles.content}>
           <div className={styles.contentHeader}>
             <div>
-              <div>{data.getDate}</div>
+              <div>{data.toLocaleString()}</div>
               <div>Curso selecionado:{selectedOption}</div>
             </div>
             <div className={styles.selectCursos}>
@@ -153,9 +193,9 @@ export default function Dashboard() {
             <div className={styles.contentHeaderBarTitle}>
               <p>Media de alunos ativos</p>
               <div>
-                <button type="button" value="dia">Dia</button>
-                <button type="button" value="semana">Semana</button>
-                <button type="button" value="mes">Mes</button>
+                <button type="button" onClick={() => handlePeriodButtonClick("dia")}>Dia</button>
+                <button type="button" onClick={() => handlePeriodButtonClick("semana")}>Semana</button>
+                <button type="button" onClick={() => handlePeriodButtonClick("mes")}>Mês</button>
               </div>
             </div>
             <div>
@@ -175,7 +215,7 @@ export default function Dashboard() {
         <section className={styles.graficoBarContent}>
             <div className={styles.graficoBar}>
               <GraficoBarra
-                data={GraficoBarraData}
+                data={GraficoBarraDataAtivos}
                 options={GraficoBarraOptions}
                 className={styles.Bar}
               />
@@ -184,11 +224,11 @@ export default function Dashboard() {
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
             <div className={styles.contentHeaderBarTitle}>
-              <p>Media de alunos ativos</p>
+              <p>Media de alunos ausentes</p>
               <div>
-                <button type="button" value="dia">Dia</button>
-                <button type="button" value="semana">Semana</button>
-                <button type="button" value="mes">Mes</button>
+                <button type="button" onClick={() => handlePeriodButtonClick("dia")}>Dia</button>
+                <button type="button" onClick={() => handlePeriodButtonClick("semana")}>Semana</button>
+                <button type="button" onClick={() => handlePeriodButtonClick("mes")}>Mês</button>
               </div>
             </div>
             <div>
@@ -208,7 +248,7 @@ export default function Dashboard() {
         <section className={styles.graficoBarContent}>
             <div className={styles.graficoBar}>
               <GraficoBarra
-                data={GraficoBarraData}
+                data={GraficoBarraDataAusentes}
                 options={GraficoBarraOptions}
                 className={styles.Bar}
               />
