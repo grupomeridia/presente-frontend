@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Doughnut, Bar } from "react-chartjs-2";
 import NavBar from "@/components/Navbar/navbar";
 import { Fundo } from "@/components/Fundo/fundo";
@@ -8,22 +7,112 @@ import Cabecalho from "@/components/Cabecalho/cabecalho";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
+import React, { useEffect, useState } from "react";
+
+import api from "@/client/api";
 
 Chart.register(ChartDataLabels);
 
 export default function Frequencia() {
+  const [numAlunosData, setNumAlunosData] = useState(null);
+  const [idProfessor, setIdProfessor] = useState("1");
+  const [idChamada, setIdChamada] = useState("1");
+  const [presentes,setPresentes] = useState();
+  const [ausentes,setAusentes] = useState();
+  const [totalAlunos, setTotalAlunos] = useState();
+
   //Grafico circular
 
   const [GraficoCircularData, setChartData] = useState({
-    labels: ["Red", "Green"],
+    labels: ["Presença", "Ausência"],
     datasets: [
       {
-        label: "My First Dataset",
-        data: [300, 50],
-        backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(255, 159, 64, 0.2)"],
+        label: "Presença / Ausência",
+        data: [0, 0],
+        backgroundColor: ["rgba(75, 192, 192, 0.2)", "rgba(255, 99, 132, 0.2)"],
       },
     ],
   });
+
+  const fetchDados = () => {
+    api.professor.frequencia(idProfessor, idChamada)
+      .then(response => {
+        setNumAlunosData(response.data);
+      })
+      .catch(error => console.error("Erro ao buscar os dados:", error));
+  }
+  
+    useEffect(() => {
+      fetchDados();
+    }, [idProfessor, idChamada]);
+
+
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      fetchDados();
+    };
+
+    window.addEventListener('click', handleUserInteraction);
+    window.addEventListener('keypress', handleUserInteraction);
+
+    return () => {
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('keypress', handleUserInteraction);
+    }
+  }, [idProfessor, idChamada]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchDados();
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+  }, [idProfessor, idChamada]);
+
+  useEffect(() => {
+    if (numAlunosData) {
+      console.log("Dados recebidos do backend:", numAlunosData);
+  
+      const ausentesValue = numAlunosData["Faltam a chegar"];
+      const presentesValue = numAlunosData["Aluno presentes"];
+      const totalAlunosValue = numAlunosData["Total de Alunos"];
+  
+      // Verifica se todos os valores são válidos
+      if (
+        ausentesValue !== undefined &&
+        !isNaN(ausentesValue) &&
+        presentesValue !== undefined &&
+        !isNaN(presentesValue) &&
+        totalAlunosValue !== undefined &&
+        !isNaN(totalAlunosValue)
+      ) {
+        setAusentes(ausentesValue);
+        setPresentes(presentesValue);
+        setTotalAlunos(totalAlunosValue);
+  
+        setChartData({
+          labels: ["Presença", "Ausência"],
+          datasets: [
+            {
+              label: "Presença / Ausência",
+              data: [presentesValue, ausentesValue],
+              backgroundColor: [
+                "rgba(75, 192, 192, 0.2)",
+                "rgba(255, 99, 132, 0.2)",
+              ],
+            },
+          ],
+        });
+      }
+    }
+  }, [numAlunosData]);
+  
 
   const GraficoCircularOptions = {
     responsive: true,
@@ -69,7 +158,7 @@ export default function Frequencia() {
       },
     },
   };
-  
+
   const valores = [50, 150, 80, 50, 90];
   const ajusteValores = valores.map((value) => Math.min(value, 100));
 
@@ -86,8 +175,6 @@ export default function Frequencia() {
     ],
   };
 
-
-
   return (
     <>
       <NavBar />
@@ -96,15 +183,29 @@ export default function Frequencia() {
         <div className={styles.container_center}>
           <div className={styles.tituloGrafico}>
             <div className={styles.info_center}>
-              <h2>Presenças Marcadas</h2>
-              <h3>10/50</h3>
-            </div>
-            <div className={styles.graficoCircular}>
+            <h2>Presenças Marcadas</h2>
+            <h3>
+              {numAlunosData ? (
+                isNaN(presentes) || isNaN(totalAlunos) ? (
+                  "..."
+                ) : (
+                  `${presentes}/${totalAlunos}`
+                )
+              ) : (
+                "Carregando..."
+              )}
+            </h3>
+          </div>
+          <div className={styles.graficoCircular}>
+            {numAlunosData && !isNaN(presentes) && !isNaN(ausentes) ? (
               <GraficoCircular
                 data={GraficoCircularData}
                 options={GraficoCircularOptions}
                 className={styles.Doughnut}
               />
+            ) : (
+              <h3></h3>
+            )}
             </div>
           </div>
         </div>

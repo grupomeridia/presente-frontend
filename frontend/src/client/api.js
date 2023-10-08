@@ -41,6 +41,7 @@ const api = {
         create: (professorData) => httpClient.post('/api/professor',professorData),
         update: (id, professorData) => httpClient.put('/api/professor',id,professorData),
         delete: (id) => httpClient.delete('/api/professor',id),
+        frequencia: (idProfessor, idChamada) => httpClient.get(`api/professor/numAlunos?id_professor=${idProfessor}&id_chamada=${idChamada}`)
      },
      projeto:{
         findById: (id) => httpClient.get('api/projeto',id),
