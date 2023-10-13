@@ -15,10 +15,9 @@ const api = {
      chamada: {
         findById: (id) => httpClient.get('api/chamada',id),
         listAll: () => httpClient.get('/api/chamada/listAll'),
-        create: (chamadaData) => httpClient.post('/api/chamada',chamadaData),
+        create: (chamada) => httpClient.post('/api/chamada',chamada),
         update: (id, chamaData) =>httpClient.put('/api/chamada',id,chamaData),
         delete: (id) => httpClient.delete(`/api/chamada?id=${id}`,id),
-
      },
      configuracao:{
         findById: (id) => httpClient.get('api/configuracao',id),
@@ -41,7 +40,10 @@ const api = {
         create: (professorData) => httpClient.post('/api/professor',professorData),
         update: (id, professorData) => httpClient.put('/api/professor',id,professorData),
         delete: (id) => httpClient.delete('/api/professor',id),
-        frequencia: (idProfessor, idChamada) => httpClient.get(`api/professor/numAlunos?id_professor=${idProfessor}&id_chamada=${idChamada}`)
+        frequencia: (idProfessor, idChamada) => httpClient.get(`api/professor/numAlunos?id_professor=${idProfessor}&id_chamada=${idChamada}`),
+        historicoSemanal: (idProfessor) => httpClient.get('/api/professor/historicoSemanal?id=' + idProfessor),
+        mediaSemanal: (media) => httpClient.get('/api/professor/mediaSemanal?id='+ media),
+        turmas: (idProfessor) => httpClient.get('/api/professor/listarTurmas?id='+ idProfessor)
      },
      projeto:{
         findById: (id) => httpClient.get('api/projeto',id),
