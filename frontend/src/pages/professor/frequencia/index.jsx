@@ -8,6 +8,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
 import React, { useEffect, useState } from "react";
+import axios from 'axios';
 
 import api from "@/client/api";
 
@@ -20,8 +21,28 @@ export default function Frequencia() {
   const [presentes,setPresentes] = useState();
   const [ausentes,setAusentes] = useState();
   const [totalAlunos, setTotalAlunos] = useState();
+  const [porcentagemPresenca, setPorcentagemPresenca] = useState(null);
+  const [mediaSemanalData, setMediaSemanalData] = useState([]);
+
+
 
   //Grafico circular
+
+  // dados grafico circular
+
+const fetchDados = () => {
+  api.professor.frequencia(idProfessor, idChamada)
+    .then(response => {
+      console.log("Dados recebidos para a frequência:", response.data);
+      setNumAlunosData(response.data);
+    })
+    .catch(error => console.error("Erro ao buscar os dados:", error));
+}
+
+
+  useEffect(() => {
+    fetchDados();
+  }, [idProfessor, idChamada]);
 
   const [GraficoCircularData, setChartData] = useState({
     labels: ["Presença", "Ausência"],
@@ -33,19 +54,6 @@ export default function Frequencia() {
       },
     ],
   });
-
-  const fetchDados = () => {
-    api.professor.frequencia(idProfessor, idChamada)
-      .then(response => {
-        setNumAlunosData(response.data);
-      })
-      .catch(error => console.error("Erro ao buscar os dados:", error));
-  }
-  
-    useEffect(() => {
-      fetchDados();
-    }, [idProfessor, idChamada]);
-
 
   useEffect(() => {
     const handleUserInteraction = () => {
@@ -78,41 +86,26 @@ export default function Frequencia() {
   useEffect(() => {
     if (numAlunosData) {
       console.log("Dados recebidos do backend:", numAlunosData);
-  
-      const ausentesValue = numAlunosData["Faltam a chegar"];
-      const presentesValue = numAlunosData["Aluno presentes"];
-      const totalAlunosValue = numAlunosData["Total de Alunos"];
-  
-      // Verifica se todos os valores são válidos
-      if (
-        ausentesValue !== undefined &&
-        !isNaN(ausentesValue) &&
-        presentesValue !== undefined &&
-        !isNaN(presentesValue) &&
-        totalAlunosValue !== undefined &&
-        !isNaN(totalAlunosValue)
-      ) {
-        setAusentes(ausentesValue);
-        setPresentes(presentesValue);
-        setTotalAlunos(totalAlunosValue);
-  
-        setChartData({
-          labels: ["Presença", "Ausência"],
-          datasets: [
-            {
-              label: "Presença / Ausência",
-              data: [presentesValue, ausentesValue],
-              backgroundColor: [
-                "rgba(75, 192, 192, 0.2)",
-                "rgba(255, 99, 132, 0.2)",
-              ],
-            },
-          ],
-        });
-      }
+      
+      setAusentes(numAlunosData["Faltam a chegar"]);
+      setPresentes(numAlunosData["Alunos presentes"]);
+      setTotalAlunos(numAlunosData["Total de Alunos"]);
+      
+      setChartData({
+        labels: ["Presença", "Ausência"],
+        datasets: [
+          {
+            label: "Presença / Ausência",
+            data: [presentes,ausentes ],
+            backgroundColor: [
+              "rgba(75, 192, 192, 0.2)",
+              "rgba(255, 99, 132, 0.2)",
+            ],
+          },
+        ],
+      });
     }
   }, [numAlunosData]);
-  
 
   const GraficoCircularOptions = {
     responsive: true,
@@ -142,6 +135,50 @@ export default function Frequencia() {
   };
 
   // Grafico Barra
+  // dados do porcentagem presença
+
+const fetchPorcentagemPresenca = () => {
+  api.professor.historicoSemanal(idProfessor)
+      .then(response => {
+          console.log("Resposta completa:", response);
+          console.log("Dados da resposta:", response.data);
+          if(response.data && response.data.porcentagem_presenca) {
+            // Convertendo a notação científica para número decimal/normal
+            let valorNormal = parseFloat(response.data.porcentagem_presenca).toFixed(2);
+            setPorcentagemPresenca(valorNormal);
+          } else {
+            console.error("Não foi possível encontrar 'porcentagem_presenca' nos dados:", response.data);
+          }
+      })
+      .catch(error => {
+          console.error("Erro ao buscar a porcentagem de presença:", error);
+      });
+}
+
+
+useEffect(() => {
+  fetchDados();
+  fetchPorcentagemPresenca();
+}, [idProfessor, idChamada]);
+
+//  dados grafico barra
+
+const diasDaSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+
+const fetchMediaSemanal = () => {
+    api.professor.mediaSemanal(idProfessor)
+        .then(response => {
+            console.log("Dados da resposta:", response.data);
+            setMediaSemanalData(response.data);
+        })
+        .catch(error => {
+            console.error("Erro ao buscar a média semanal:", error);
+        });
+}
+
+useEffect(() => {
+    fetchMediaSemanal();
+}, [idProfessor]);
 
   const GraficoBarraOptions = {
     scales: {
@@ -157,23 +194,41 @@ export default function Frequencia() {
         },
       },
     },
+     plugins: {
+      datalabels: {
+        formatter: (value, context) => {
+          if (value === 100) {
+            return '';
+          } else {
+            return value + '%';
+          }
+        },
+        color: "#000",
+        anchor: "end",
+      }
+    }
   };
 
-  const valores = [50, 150, 80, 50, 90];
-  const ajusteValores = valores.map((value) => Math.min(value, 100));
+let labels = [];
+let dataValues = [];
 
-  const GraficoBarraData = {
-    labels: ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"],
+mediaSemanalData.forEach(item => {
+    labels.push(diasDaSemana[item.dia_semana]);
+    dataValues.push(parseFloat(item.porcentagem_presenca));
+});
+
+const GraficoBarraData = {
+    labels: labels,
     datasets: [
-      {
-        label: "Frequencia",
-        data: ajusteValores,
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 2,
-      },
+        {
+            label: "Frequencia",
+            data: dataValues,
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 2,
+        },
     ],
-  };
+};
 
   return (
     <>
@@ -183,29 +238,21 @@ export default function Frequencia() {
         <div className={styles.container_center}>
           <div className={styles.tituloGrafico}>
             <div className={styles.info_center}>
-            <h2>Presenças Marcadas</h2>
-            <h3>
-              {numAlunosData ? (
-                isNaN(presentes) || isNaN(totalAlunos) ? (
-                  "..."
-                ) : (
-                  `${presentes}/${totalAlunos}`
-                )
-              ) : (
-                "Carregando..."
+              <h2>Presenças Marcadas</h2>
+              <h3>
+                {numAlunosData
+                  ? `${presentes}/${totalAlunos}`
+                  : "Carregando..."}
+              </h3>
+            </div>
+            <div className={styles.graficoCircular}>
+              {numAlunosData && (
+                <GraficoCircular
+                  data={GraficoCircularData}
+                  options={GraficoCircularOptions}
+                  className={styles.Doughnut}
+                />
               )}
-            </h3>
-          </div>
-          <div className={styles.graficoCircular}>
-            {numAlunosData && !isNaN(presentes) && !isNaN(ausentes) ? (
-              <GraficoCircular
-                data={GraficoCircularData}
-                options={GraficoCircularOptions}
-                className={styles.Doughnut}
-              />
-            ) : (
-              <h3></h3>
-            )}
             </div>
           </div>
         </div>
@@ -220,7 +267,7 @@ export default function Frequencia() {
                 className={styles.Bar}
               />
             </div>
-            <h2>Frequencia Semanal</h2>
+            <h2>Frequencia Semanal: <br/> {porcentagemPresenca ? porcentagemPresenca + "%" : "Carregando..."}</h2>
           </div>
         </div>
       </Fundo>
