@@ -11,6 +11,7 @@ export default function Chamada() {
   const [turmas, setTurmas] = useState([]);
   const [selectedTurma, setSelectedTurma] = useState(null);
   const [serverResponse, setServerResponse] = useState(null);
+  const [chamadasAbertas, setChamadasAbertas] = useState([]);
 
   useEffect(() => {
     api.professor
@@ -24,35 +25,63 @@ export default function Chamada() {
       });
   }, []);
 
-  //   useEffect(() => {
-  //     api.professor
-  //       .chamadasAbertas(IdProfessor)
-  //       .then((response) => {
-  //         console.log(response.data);
-  //         setChamadasAbertas(response.data);
-  //       })
-  //       .catch((error) => {
-  //         console.error("Erro ao buscar as chamadas abertas:", error);
-  //       });
-  // }, []);
+  useEffect(() => {
+    api.professor
+      .chamadasAbertas(IdProfessor)
+      .then((response) => {
+        console.log(response.data);
+        setChamadasAbertas(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as chamadas abertas:", error);
+      });
+  }, []);
+
+  //Abrir chamada
 
   const abrirChamada = () => {
     const payload = {
       id_turma: selectedTurma,
       id_professor: IdProfessor,
     };
-
+  
     console.log("Enviando payload:", payload);
-
+  
     api.chamada
       .create(payload)
       .then((response) => {
         console.log("Resposta da chamada:", response.data);
         setServerResponse("Chamada aberta com sucesso!");
+        // Após abrir a chamada com sucesso, refetch chamadas abertas
+        return api.professor.chamadasAbertas(IdProfessor);
+      })
+      .then((response) => {
+        setChamadasAbertas(response.data);
       })
       .catch((error) => {
         console.error("Erro ao abrir a chamada:", error);
         setServerResponse("Erro ao abrir a chamada.");
+        if (error.response) {
+          console.error("Detalhes do erro:", error.response.data);
+        }
+      });
+  };
+
+  // Fechar chamada
+
+  const fecharChamada = (idChamada) => {
+    api.chamada
+      .fecharChamada(idChamada)
+      .then((response) => {
+        console.log("Chamada encerrada com sucesso:", response.data);
+        // Após encerrar a chamada com sucesso, refetch chamadas abertas
+        return api.professor.chamadasAbertas(IdProfessor);
+      })
+      .then((response) => {
+        setChamadasAbertas(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro:", error);
         if (error.response) {
           console.error("Detalhes do erro:", error.response.data);
         }
@@ -64,36 +93,36 @@ export default function Chamada() {
       <Navbar />
       <Cabecalho />
       <Fundo>
-      <div className={styles.fundoContainer}> 
-        {serverResponse && (
-          <div className={styles.serverResponse}>
-            {serverResponse === "Chamada aberta com sucesso!" ? "✅" : "❌"}{" "}
-            {serverResponse}
-          </div>
-        )}
+        <div className={styles.fundoContainer}>
+          {serverResponse && (
+            <div className={styles.serverResponse}>
+              {serverResponse === "Chamada aberta com sucesso!" ? "✅" : "❌"}{" "}
+              {serverResponse}
+            </div>
+          )}
 
-        <div className={styles.form_center}>
-          <div className={styles.form}>
-            <h2 className={styles.titulo}>Abrir Chamada</h2>
-            
-            <select
-              className={styles.input}
-              id="turma"
-              value={selectedTurma}
-              onChange={(e) => setSelectedTurma(e.target.value)}
-            >
-              <option value="">Turma</option>
-              {turmas.map((turma) => (
-                <option key={turma.id_turma} value={turma.id_turma}>
-                  {turma.nome}
-                </option>
-              ))}
-            </select>
+          <div className={styles.form_center}>
+            <div className={styles.form}>
+              <h2 className={styles.titulo}>Abrir Chamada</h2>
+
+              <select
+                className={styles.input}
+                id="turma"
+                value={selectedTurma}
+                onChange={(e) => setSelectedTurma(e.target.value)}
+              >
+                <option value="">Turma</option>
+                {turmas.map((turma) => (
+                  <option key={turma.id_turma} value={turma.id_turma}>
+                    {turma.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button className={styles.botao} onClick={abrirChamada}>
+              ABRIR
+            </button>
           </div>
-          <button className={styles.botao} onClick={abrirChamada}>
-            ABRIR
-          </button>
-        </div>
         </div>
       </Fundo>
 
@@ -104,24 +133,28 @@ export default function Chamada() {
             <thead>
               <tr>
                 <th>Turma</th>
-                <th>Periodo</th>
                 <th>Projeto</th>
-                <th>Data</th>
+                <th>Professor</th>
+                <th>Data Abertura</th>
+                <th>Data Encerramento</th>
                 <th>Ação</th>
               </tr>
             </thead>
             <tbody>
-              {/* {chamadasAbertas.map((chamada) => (
+              {chamadasAbertas.map((chamada) => (
                 <tr key={chamada.id}>
-                  <td>{chamada.turma}</td>
-                  <td>{chamada.periodo}</td>
-                  <td>{chamada.projeto}</td>
-                  <td>{chamada.data}</td>
+                  <td>{chamada.id_turma}</td>
+                  <td>{chamada.encerramento}</td>
+                  <td>{chamada.id_professor}</td>
+                  <td>{chamada.abertura}</td>
+                  <td>{chamada.encerramento ? chamada.encerramento : "não definido"}</td>
                   <td>
-                    <span>Ação</span>
+                    <button onClick={() => fecharChamada(chamada.id_chamada)}>
+                      Encerrar
+                    </button>
                   </td>
                 </tr>
-              ))} */}
+              ))}
             </tbody>
           </table>
         </div>
