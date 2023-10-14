@@ -46,7 +46,7 @@ const api = {
         mediaSemanal: (media) => httpClient.get('/api/professor/mediaSemanal?id='+ media),
         turmas: (idProfessor) => httpClient.get('/api/professor/listarTurmas?id='+ idProfessor),
         chamadasAbertas:(idProfessor) => httpClient.get('/api/chamada/listAllprofessor?id=' + idProfessor),
-      //   presenca: (ra) => httpClient.
+        presenca: (body) => httpClient.post('/api/presenca/ra',body),
      },
      projeto:{
         findById: (id) => httpClient.get('api/projeto',id),
