@@ -32,3 +32,22 @@
     padding: 10px 60px 10px 60px;
     margin-bottom: 30px;
   }
+
+
+  .fundoContainer {
+    position: relative;
+  }
+
+  .serverResponse {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    font-size: 16px;
+    color: aliceblue;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  
+
+  
