@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 
 const Navbar = () => {
   const [activeItem, setActiveItem] = useState("");
-  const [userType, setUserType] = useState("professor"); // Substitua por 'aluno' ou 'professor' conforme necessário
+  const [userType, setUserType] = useState("admin"); // Substitua por 'aluno' ou 'professor' conforme necessário
   const [userImage, setUserImage] = useState(""); // lembrar de colocar aqui a imagen dafault
   const router = useRouter();
 
@@ -45,7 +45,7 @@ const Navbar = () => {
       return [
         { name: "Dashboard", icon: faTachometerAlt, link: "/dashboardAdmin" },
         { name: "Chamada", icon: faUserCheck, link: "/chamada-admin" },
-        { name: "Cadastrar", icon: faUserPlus, link: "/cadastrar" },
+        { name: "Cadastrar", icon: faUserPlus, link: "/admin/cadastrar" },
         {
           name: "Presença",
           icon: faChalkboardTeacher,

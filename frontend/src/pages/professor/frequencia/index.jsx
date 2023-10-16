@@ -8,7 +8,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
 import React, { useEffect, useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 
 import api from "@/client/api";
 
@@ -18,27 +18,25 @@ export default function Frequencia() {
   const [numAlunosData, setNumAlunosData] = useState(null);
   const [idProfessor, setIdProfessor] = useState("1");
   const [idChamada, setIdChamada] = useState("1");
-  const [presentes,setPresentes] = useState();
-  const [ausentes,setAusentes] = useState();
+  const [presentes, setPresentes] = useState();
+  const [ausentes, setAusentes] = useState();
   const [totalAlunos, setTotalAlunos] = useState();
   const [porcentagemPresenca, setPorcentagemPresenca] = useState(null);
   const [mediaSemanalData, setMediaSemanalData] = useState([]);
-
-
 
   //Grafico circular
 
   // dados grafico circular
 
-const fetchDados = () => {
-  api.professor.frequencia(idProfessor, idChamada)
-    .then(response => {
-      console.log("Dados recebidos para a frequência:", response.data);
-      setNumAlunosData(response.data);
-    })
-    .catch(error => console.error("Erro ao buscar os dados:", error));
-}
-
+  const fetchDados = () => {
+    api.professor
+      .frequencia(idProfessor, idChamada)
+      .then((response) => {
+        console.log("Dados recebidos para a frequência:", response.data);
+        setNumAlunosData(response.data);
+      })
+      .catch((error) => console.error("Erro ao buscar os dados:", error));
+  };
 
   useEffect(() => {
     fetchDados();
@@ -60,13 +58,13 @@ const fetchDados = () => {
       fetchDados();
     };
 
-    window.addEventListener('click', handleUserInteraction);
-    window.addEventListener('keypress', handleUserInteraction);
+    window.addEventListener("click", handleUserInteraction);
+    window.addEventListener("keypress", handleUserInteraction);
 
     return () => {
-      window.removeEventListener('click', handleUserInteraction);
-      window.removeEventListener('keypress', handleUserInteraction);
-    }
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("keypress", handleUserInteraction);
+    };
   }, [idProfessor, idChamada]);
 
   useEffect(() => {
@@ -74,29 +72,29 @@ const fetchDados = () => {
       if (!document.hidden) {
         fetchDados();
       }
-    }
+    };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [idProfessor, idChamada]);
 
   useEffect(() => {
     if (numAlunosData) {
       console.log("Dados recebidos do backend:", numAlunosData);
-      
+
       setAusentes(numAlunosData["Faltam a chegar"]);
       setPresentes(numAlunosData["Alunos presentes"]);
       setTotalAlunos(numAlunosData["Total de Alunos"]);
-      
+
       setChartData({
         labels: ["Presença", "Ausência"],
         datasets: [
           {
             label: "Presença / Ausência",
-            data: [presentes,ausentes ],
+            data: [presentes, ausentes],
             backgroundColor: [
               "rgba(75, 192, 192, 0.2)",
               "rgba(255, 99, 132, 0.2)",
@@ -137,48 +135,62 @@ const fetchDados = () => {
   // Grafico Barra
   // dados do porcentagem presença
 
-const fetchPorcentagemPresenca = () => {
-  api.professor.historicoSemanal(idProfessor)
-      .then(response => {
-          console.log("Resposta completa:", response);
-          console.log("Dados da resposta:", response.data);
-          if(response.data && response.data.porcentagem_presenca) {
-            // Convertendo a notação científica para número decimal/normal
-            let valorNormal = parseFloat(response.data.porcentagem_presenca).toFixed(2);
-            setPorcentagemPresenca(valorNormal);
-          } else {
-            console.error("Não foi possível encontrar 'porcentagem_presenca' nos dados:", response.data);
-          }
+  const fetchPorcentagemPresenca = () => {
+    api.professor
+      .historicoSemanal(idProfessor)
+      .then((response) => {
+        console.log("Resposta completa:", response);
+        console.log("Dados da resposta:", response.data);
+        if (response.data && response.data.porcentagem_presenca) {
+          // Convertendo a notação científica para número decimal/normal
+          let valorNormal = parseFloat(
+            response.data.porcentagem_presenca
+          ).toFixed(2);
+          setPorcentagemPresenca(valorNormal);
+        } else {
+          console.error(
+            "Não foi possível encontrar 'porcentagem_presenca' nos dados:",
+            response.data
+          );
+        }
       })
-      .catch(error => {
-          console.error("Erro ao buscar a porcentagem de presença:", error);
+      .catch((error) => {
+        console.error("Erro ao buscar a porcentagem de presença:", error);
       });
-}
+  };
 
+  useEffect(() => {
+    fetchDados();
+    fetchPorcentagemPresenca();
+  }, [idProfessor, idChamada]);
 
-useEffect(() => {
-  fetchDados();
-  fetchPorcentagemPresenca();
-}, [idProfessor, idChamada]);
+  //  dados grafico barra
 
-//  dados grafico barra
+  const diasDaSemana = [
+    "Domingo",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+  ];
 
-const diasDaSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+  const fetchMediaSemanal = () => {
+    api.professor
+      .mediaSemanal(idProfessor)
+      .then((response) => {
+        console.log("Dados da resposta:", response.data);
+        setMediaSemanalData(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar a média semanal:", error);
+      });
+  };
 
-const fetchMediaSemanal = () => {
-    api.professor.mediaSemanal(idProfessor)
-        .then(response => {
-            console.log("Dados da resposta:", response.data);
-            setMediaSemanalData(response.data);
-        })
-        .catch(error => {
-            console.error("Erro ao buscar a média semanal:", error);
-        });
-}
-
-useEffect(() => {
+  useEffect(() => {
     fetchMediaSemanal();
-}, [idProfessor]);
+  }, [idProfessor]);
 
   const GraficoBarraOptions = {
     scales: {
@@ -194,41 +206,44 @@ useEffect(() => {
         },
       },
     },
-     plugins: {
+    plugins: {
       datalabels: {
         formatter: (value, context) => {
           if (value === 100) {
-            return '';
+            return "";
           } else {
-            return value + '%';
+            return value + "%";
           }
         },
-        color: "#000",
+        color: "#fff",
         anchor: "end",
-      }
+      },
+      legend: {
+        display: false
     }
+    },
   };
 
-let labels = [];
-let dataValues = [];
+  let labels = [];
+  let dataValues = [];
 
-mediaSemanalData.forEach(item => {
+  mediaSemanalData.forEach((item) => {
     labels.push(diasDaSemana[item.dia_semana]);
     dataValues.push(parseFloat(item.porcentagem_presenca));
-});
+  });
 
-const GraficoBarraData = {
+  const GraficoBarraData = {
     labels: labels,
     datasets: [
-        {
-            label: "Frequencia",
-            data: dataValues,
-            backgroundColor: "rgba(75, 192, 192, 0.2)",
-            borderColor: "rgba(75, 192, 192, 1)",
-            borderWidth: 2,
-        },
+      {
+        label: "Frequencia",
+        data: dataValues,
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 2,
+      },
     ],
-};
+  };
 
   return (
     <>
@@ -267,7 +282,12 @@ const GraficoBarraData = {
                 className={styles.Bar}
               />
             </div>
-            <h2>Frequencia Semanal: <br/> {porcentagemPresenca ? porcentagemPresenca + "%" : "Carregando..."}</h2>
+            <h2>
+              Frequencia Semanal: <br />{" "}
+              {porcentagemPresenca
+                ? porcentagemPresenca + "%"
+                : "Carregando..."}
+            </h2>
           </div>
         </div>
       </Fundo>
