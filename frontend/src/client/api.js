@@ -61,7 +61,16 @@ const api = {
         create: (turmaData) => httpClient.post('/api/turma',turmaData),
         update: (id, turmaData) => httpClient.put('/api/turma',id,turmaData),
         delete: (id) => httpClient.delete('/api/turma',id),
-     }
+        professorNaTurma: (id_turma,id_professor) => httpClient.post('/api/turma/cadastrarProfessor',id_turma,id_professor),
+        alunoNaTurma: (id_turma,id_aluno) => httpClient.post('/api/turma/cadastrarAluno',id_turma,id_aluno),
+     },
+     materia:{
+      create: (payload) => httpClient.post('api/materia', payload)
+     },
+     usuario: {
+      create: (payload) => httpClient.post('api/usuario', payload),
+      login: (payload) => httpClient.post('/api/login',payload),
+    }    
 
 };
 
