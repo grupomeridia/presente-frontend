@@ -52,7 +52,6 @@ export default function Chamada() {
       .then((response) => {
         console.log("Resposta da chamada:", response.data);
         setServerResponse("Chamada aberta com sucesso!");
-        // Após abrir a chamada com sucesso, refetch chamadas abertas
         return api.professor.chamadasAbertas(IdProfessor);
       })
       .then((response) => {
