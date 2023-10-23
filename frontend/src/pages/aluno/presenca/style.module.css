@@ -1,20 +1,20 @@
-.page_content{
+.page_content {
     position: relative;
     left: 220px;
     width: calc(100% - 220px);
-    min-height: 100vh; 
+    min-height: 100vh;
     padding: 30px;
     color: #171616;
     background: #f0f1f6;
 }
 
-.inner_content{
+.inner_content {
     display: flex;
     align-items: center;
     flex-direction: column;
 }
 
-.chamada{
+.chamada {
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -25,14 +25,14 @@
     border-radius: 20px;
 }
 
-.chamada div{
+.chamada div {
     color: #fff;
     display: flex;
     justify-content: center;
     padding: 10px;
 }
 
-.historico{
+.historico {
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -42,7 +42,7 @@
     border-radius: 20px;
 }
 
-.historico div{
+.historico div {
     color: #fff;
     display: flex;
     justify-content: center;
@@ -56,15 +56,33 @@
     text-align: center;
 }
 
-.tabela tr{
+.tabela tr {
     height: 2.5rem;
+    margin-bottom: 10px;
 }
 
-.botao{
+.botao {
     font-size: medium;
     color: #ffff;
     background-color: #203867;
     height: 30px;
     width: 60%;
     border-radius: 50px;
+}
+
+.botaoRealizaChamada {
+    width: 70%;
+    height: 2.3rem;
+    border-radius: 15px;
+    background-color: #203867;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.botaoRealizaChamada:hover {
+    background-color: #556482;
 }

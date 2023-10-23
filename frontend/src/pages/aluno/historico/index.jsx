@@ -7,17 +7,61 @@ import Cabecalho from "@/components/Cabecalho/cabecalho";
 import { text } from "@fortawesome/fontawesome-svg-core";
 
 
-function historicoAluno(){
+export default function historicoAluno() {
+
+    const [aluno, setAluno] = useState(1);
+    const [historico, setHistorico] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [historicoFiltrada, setHistoricoFiltrada] = useState([]);
+
+    const fetchPresencasAluno = () => {
+        api.aluno.findChamadaByAluno(aluno)
+            .then(response => {
+                setHistorico(response.data);
+                setHistoricoFiltrada(response.data);
+                console.log(response.data);
+            })
+            .catch(error => {
+                console.log("Error ao buscar a lista de presencas", error);
+            });
+    };
+
+    useEffect(() => {
+        fetchPresencasAluno();
+    }, [aluno]);
+
+    const handleSearch = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+
+        const filteredList = historico.filter(item =>
+            item.nome.toLowerCase().includes(value.toLowerCase())
+          );
+      
+          setHistoricoFiltrada(filteredList);
+    };
+
+    // useEffect(() =>{
+    //     const fetchPresencasAluno = async () => {
+    //         try{
+    //             const resposnse = await api.aluno.findChamadaByAluno(aluno);
+    //             setHistorico(resposnse.data);
+    //         }catch(error){
+    //             console.error("Erro ao buscar as presenças", error);
+    //         }
+    //     };
+    //     fetchPresencasAluno();
+    // }, )
 
 
-    return(
+    return (
         <div>
-        <Cabecalho/>
-        <Navbar/>
+            <Cabecalho />
+            <Navbar />
             <section className={styles.page_content}>
                 <section className={styles.inner_content}>
                     <div className={styles.div_content}>
-                        <div className={styles.dados}>                   
+                        <div className={styles.dados}>
                             <div>
                                 <h1>9</h1>
                                 <p>Presencas</p>
@@ -28,10 +72,11 @@ function historicoAluno(){
                             </div>
                         </div>
                         <div className={styles.search_input}>
-                        <div>
-                            <input type="text"></input>
-                            <div>buscar</div>
-                        </div>
+                            <div>
+                                <input type="text" placeholder="Pesquisar..."
+                                    value={searchTerm}
+                                    onChange={handleSearch}></input>
+                            </div>
                         </div>
                     </div>
                     <div className={styles.div_table}>
@@ -39,30 +84,28 @@ function historicoAluno(){
                             <thead>
                                 <tr>
                                     <th>Nome</th>
-                                    <th>Dia</th>
-                                    <th>RA</th>
-                                    <th>Projeto/Materia</th>
-                                    <th>Professor</th>
-                                    <th>Periodo</th>
+                                    <th>Dia/Hora</th>
+                                    <th>Status</th>
+                                    <th>Tipo de Presenca</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Carlos</td>
-                                    <td>22/06</td>
-                                    <td>903497</td>
-                                    <td>Pizaria</td>
-                                    <td>Willian</td>
-                                    <td>3° Periodo</td>
-                                </tr>
+                                {historicoFiltrada.map((item) => (
+                                    <tr key={item.id_presenca}>
+                                        <td>{item.nome}</td>
+                                        <td>{item.horario}</td>
+                                        <td>{item.status ? "ativo" : "inativo"}</td>
+                                        <td>{item.tipo_presenca}</td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
                 </section>
             </section>
-            <Footer/>
+            <Footer />
         </div>
     );
-}
 
-export default historicoAluno;
+
+}

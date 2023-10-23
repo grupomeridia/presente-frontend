@@ -8,6 +8,7 @@ import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
 import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
+import api from "@/client/api";
 
 Chart.register(ChartDataLabels);
 
@@ -17,6 +18,35 @@ export default function Dashboard() {
   const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
   const [valores, setValores] = useState([50, 150, 80, 50, 90]);
   const [periodType, setPeriodType] = useState("dia");
+  const [alunosAusentes, setAlunosAusentes] = useState([]);
+  const [idTurma, setIdTurma] = useState(1);
+
+  // const fetchMediaSemanal = () => {
+  //   api.professor.mediaSemanal(idProfessor)
+  //     .then(response => {
+  //       console.log("Dados da resposta:", response.data);
+  //       setMediaSemanalData(response.data);
+  //     })
+  //     .catch(error => {
+  //       console.error("Erro ao buscar a média semanal:", error);
+  //     });
+  // }
+
+  const fetchAlunosAusentes = () => {
+    api.admin.findByAusentes(idTurma)
+      .then(response => {
+        setAlunosAusentes(response.data);
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.error("Erro ao buscar a média semanal:", error);
+      });
+  }
+
+  useEffect(() => {
+    fetchAlunosAusentes();
+  }, [idTurma]);
+
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -59,6 +89,7 @@ export default function Dashboard() {
   const GraficoBarraOptions = {
     plugins: {
       legend: {
+        display:false,
         labels: {
           color: "white",
         },
@@ -90,7 +121,7 @@ export default function Dashboard() {
     datasets: [
       {
         label: "Alunos",
-        data: [300, 90],
+        data: alunosAusentes,
         backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
       },
     ],
@@ -163,7 +194,7 @@ export default function Dashboard() {
             <div className={styles.selectCursos}>
               <select id="cursos" value={selectedOption} onChange={handleSelectChange}>
                 <option value="" disabled hidden>
-                  Selecione uma opção
+                  Filtrar /cursos
                 </option>
                 <option value="opcao1">Opção 1</option>
                 <option value="opcao2">Opção 2</option>
@@ -173,6 +204,7 @@ export default function Dashboard() {
           </div>
         </section>
         <section className={styles.graficosCircularContent}>
+
           <div className={styles.grafico}>
             <GraficoCircular
               data={GraficoCircularDataAlunosAusentes}
@@ -180,6 +212,7 @@ export default function Dashboard() {
               className={styles.Doughnut}
             />
           </div>
+
           <div className={styles.grafico}>
             <GraficoCircular
               data={GraficoCircularDataAlunosAtivos}
@@ -187,6 +220,8 @@ export default function Dashboard() {
               className={styles.Doughnut}
             />
           </div>
+
+
         </section>
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
@@ -202,7 +237,7 @@ export default function Dashboard() {
               <div className={styles.selectCursos}>
                 <select id="cursos-alunos-ativos" value={selectedOption} onChange={handleSelectChange}>
                   <option value="" disabled hidden>
-                    Selecione uma opção
+                    Filtrar /cursos
                   </option>
                   <option value="opcaoA">Opção a</option>
                   <option value="opcaoB">Opção b</option>
@@ -213,13 +248,13 @@ export default function Dashboard() {
           </div>
         </section>
         <section className={styles.graficoBarContent}>
-            <div className={styles.graficoBar}>
-              <GraficoBarra
-                data={GraficoBarraDataAtivos}
-                options={GraficoBarraOptions}
-                className={styles.Bar}
-              />
-            </div>
+          <div className={styles.graficoBar}>
+            <GraficoBarra
+              data={GraficoBarraDataAtivos}
+              options={GraficoBarraOptions}
+              className={styles.Bar}
+            />
+          </div>
         </section>
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
@@ -235,7 +270,7 @@ export default function Dashboard() {
               <div className={styles.selectCursos}>
                 <select id="cursos-alunos-ativos" value={selectedOption} onChange={handleSelectChange}>
                   <option value="" disabled hidden>
-                    Selecione uma opção
+                    Filtrar /cursos
                   </option>
                   <option value="opcaoA">Opção a</option>
                   <option value="opcaoB">Opção b</option>
@@ -246,13 +281,13 @@ export default function Dashboard() {
           </div>
         </section>
         <section className={styles.graficoBarContent}>
-            <div className={styles.graficoBar}>
-              <GraficoBarra
-                data={GraficoBarraDataAusentes}
-                options={GraficoBarraOptions}
-                className={styles.Bar}
-              />
-            </div>
+          <div className={styles.graficoBar}>
+            <GraficoBarra
+              data={GraficoBarraDataAusentes}
+              options={GraficoBarraOptions}
+              className={styles.Bar}
+            />
+          </div>
         </section>
       </Fundo>
     </>
