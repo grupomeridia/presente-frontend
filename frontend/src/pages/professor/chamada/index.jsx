@@ -2,51 +2,126 @@ import { Fundo } from "@/components/Fundo/fundo";
 import styles from "./style.module.css";
 import Navbar from "@/components/Navbar/navbar";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+
+import api from "@/client/api";
 
 export default function Chamada() {
+  const [IdProfessor, setIdProfessor] = useState("1");
+  const [turmas, setTurmas] = useState([]);
+  const [selectedTurma, setSelectedTurma] = useState(null);
+  const [serverResponse, setServerResponse] = useState(null);
+  const [chamadasAbertas, setChamadasAbertas] = useState([]);
 
+  useEffect(() => {
+    api.professor
+      .turmas(IdProfessor)
+      .then((response) => {
+        console.log(response.data);
+        setTurmas(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as turmas:", error);
+      });
+  }, []);
 
-  const [rows, setRows] = useState([
-    { id: 1, turma: 'eng.Software', periodo: 'Pizzaria', projeto: 'Noturno', data: 'Fecha:22:00' }
-  ]);
+  useEffect(() => {
+    api.professor
+      .chamadasAbertas(IdProfessor)
+      .then((response) => {
+        console.log(response.data);
+        setChamadasAbertas(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as chamadas abertas:", error);
+      });
+  }, []);
 
-  const removeRow = (id) => {
-    const newRows = rows.filter(row => row.id !== id);
-    setRows(newRows);
-  };
+  //Abrir chamada
+
+  const abrirChamada = () => {
+    const payload = {
+      id_turma: selectedTurma,
+      id_professor: IdProfessor,
+    };
   
+    console.log("Enviando payload:", payload);
+  
+    api.chamada
+      .create(payload)
+      .then((response) => {
+        console.log("Resposta da chamada:", response.data);
+        setServerResponse("Chamada aberta com sucesso!");
+        return api.professor.chamadasAbertas(IdProfessor);
+      })
+      .then((response) => {
+        setChamadasAbertas(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro ao abrir a chamada:", error);
+        setServerResponse("Erro ao abrir a chamada.");
+        if (error.response) {
+          console.error("Detalhes do erro:", error.response.data);
+        }
+      });
+  };
+
+  // Fechar chamada
+
+  const fecharChamada = (idChamada) => {
+    api.chamada
+      .fecharChamada(idChamada)
+      .then((response) => {
+        console.log("Chamada encerrada com sucesso:", response.data);
+        // Após encerrar a chamada com sucesso, refetch chamadas abertas
+        return api.professor.chamadasAbertas(IdProfessor);
+      })
+      .then((response) => {
+        setChamadasAbertas(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro:", error);
+        if (error.response) {
+          console.error("Detalhes do erro:", error.response.data);
+        }
+      });
+  };
+
   return (
     <>
       <Navbar />
       <Cabecalho />
       <Fundo>
-        <div className={styles.form_center}>
-          <div className={styles.form}>
-            <h2 className={styles.titulo}>Abrir Chamada</h2>
-            
-            <select className={styles.input} id="turma">
-              <option value="" disabled selected hidden>Turma</option>
-              <option value="Turma A">Turma A</option>
-              <option value="Turma B">Turma B</option>
-              <option value="Turma C">Turma C</option>
-            </select>
+        <div className={styles.fundoContainer}>
+          {serverResponse && (
+            <div className={styles.serverResponse}>
+              {serverResponse === "Chamada aberta com sucesso!" ? "✅" : "❌"}{" "}
+              {serverResponse}
+            </div>
+          )}
 
-            <select className={styles.input} id="periodo">
-              <option value="" disabled selected hidden>Periodo</option>
-              <option value="Manhã">Manhã</option>
-              <option value="Tarde">Tarde</option>
-              <option value="Noite">Noite</option>
-            </select>
+          <div className={styles.form_center}>
+            <div className={styles.form}>
+              <h2 className={styles.titulo}>Abrir Chamada</h2>
 
-            <select className={styles.input} id="projeto">
-              <option value="" disabled selected hidden>Projeto</option>
-              <option value="Projeto 1">Projeto 1</option>
-              <option value="Projeto 2">Projeto 2</option>
-              <option value="Projeto 3">Projeto 3</option>
-            </select>
+              <select
+                className={styles.input}
+                id="turma"
+                value={selectedTurma}
+                onChange={(e) => setSelectedTurma(e.target.value)}
+              >
+                <option value="">Turma</option>
+                {turmas.map((turma) => (
+                  <option key={turma.id_turma} value={turma.id_turma}>
+                    {turma.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button className={styles.botao} onClick={abrirChamada}>
+              ABRIR
+            </button>
           </div>
-          <button className={styles.botao}>ABRIR</button>
         </div>
       </Fundo>
 
@@ -57,20 +132,26 @@ export default function Chamada() {
             <thead>
               <tr>
                 <th>Turma</th>
-                <th>Periodo</th>
                 <th>Projeto</th>
-                <th>Data</th>
+                <th>Professor</th>
+                <th>Data Abertura</th>
+                <th>Data Encerramento</th>
                 <th>Ação</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map(row => (
-                <tr key={row.id}>
-                  <td>{row.turma}</td>
-                  <td>{row.periodo}</td>
-                  <td>{row.projeto}</td>
-                  <td>{row.data}</td>
-                  <td><span onClick={() => removeRow(row.id)}>Fechar</span></td>
+              {chamadasAbertas.map((chamada) => (
+                <tr key={chamada.id}>
+                  <td>{chamada.id_turma}</td>
+                  <td>{chamada.encerramento}</td>
+                  <td>{chamada.id_professor}</td>
+                  <td>{chamada.abertura}</td>
+                  <td>{chamada.encerramento ? chamada.encerramento : "não definido"}</td>
+                  <td>
+                    <button onClick={() => fecharChamada(chamada.id_chamada)}>
+                      Encerrar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

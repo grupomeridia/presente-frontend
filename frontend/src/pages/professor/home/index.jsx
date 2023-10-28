@@ -39,8 +39,10 @@ export default function Presenca() {
         ? `✅ ${serverResponse.mensagem}`
         : `❌ ${serverResponse.mensagem}`;
     }
-    return ""; // Ou retorne uma mensagem padrão se preferir.
+    return "";
   };
+
+  
 
   return (
     <>

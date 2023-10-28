@@ -13,12 +13,34 @@ import {
 import { useState, useEffect } from "react";
 import Cabecalho from "../Cabecalho/cabecalho";
 import { useRouter } from "next/router";
+import { useUser } from '@/contexts/UserContext';
 
 const Navbar = () => {
   const [activeItem, setActiveItem] = useState("");
-  const [userType, setUserType] = useState("aluno"); // Substitua por 'aluno' ou 'professor' conforme necessário
+  const { user } = useUser();
+  const [userType, setUserType] = useState(); // Substitua por 'aluno' ou 'professor' conforme necessário
   const [userImage, setUserImage] = useState(""); // lembrar de colocar aqui a imagen dafault
   const router = useRouter();
+ 
+  useEffect(() => {
+    if (user) {
+      console.log("User:", user);
+      setUserType(user.Cargo);
+    }
+}, [user]);
+
+useEffect(() => {
+  console.log("Pathname:", router.pathname, "User Type:", userType);
+  if (user && user.Cargo === 'professor') {
+    const restrictedRoutes = ['/admin', '/aluno'];
+
+    if (restrictedRoutes.some(route => router.pathname.startsWith(route))) {
+      console.log("Redirecting to /home...");
+      router.push('/home');
+    }
+  }
+}, [router.pathname, user]);
+
 
   useEffect(() => {
     const fetchedImage = ""; //adiciona aqui o caminho pra pegar a imagen no backend
@@ -26,26 +48,25 @@ const Navbar = () => {
   }, []);
 
   const getMenuItems = () => {
-    if (userType === "aluno") {
+    if (userType === "Aluno") {
       return [
         { name: "Histórico", icon: faHistory, link: "/aluno/historico" },
         { name: "Presença", icon: faUserCheck, link: "/aluno/presenca" },
       ];
     }
 
-    if (userType === "professor") {
+    if (userType === "Professor") {
       return [
         { name: "Frequência", icon: faHistory, link: "/professor/frequencia" },
         { name: "Chamada", icon: faUserCheck, link: "/professor/chamada" },
         {name: "Presença",icon: faChalkboardTeacher,link: "/professor/presenca",},
-        { name: "Lembretes", icon: faBell, link: "/professor/lembrete" },
       ];
     }
 
-    if (userType === "admin") {
+    if (userType === "Admin") {
       return [
-        { name: "Dashboard", icon: faTachometerAlt, link: "/admin/dashboard" },
-        { name: "Chamada", icon: faUserCheck, link: "/admin/chamada" },
+        { name: "Dashboard", icon: faTachometerAlt, link: "/dashboardAdmin" },
+        { name: "Chamada", icon: faUserCheck, link: "/chamada-admin" },
         { name: "Cadastrar", icon: faUserPlus, link: "/admin/cadastrar" },
         {
           name: "Presença",
@@ -63,16 +84,16 @@ const Navbar = () => {
     <>
       <header className={styles.pageHeader}>
         <div className={styles.userInfo}>
-          <Image
+          {/* <Image
             className={styles.userImg}
             src={userImage}
-            alt="User"
+            alt=""
             width={50}
             height={50}
-          />
+          /> */}
           <div className={styles.userText}>
-            <span className={styles.userName}>John Doe</span>
-            <span className={styles.userCourse}>Computer Science</span>
+            <span className={styles.userName}>{user ? user.Nome : ''}</span>
+            <span className={styles.userCourse}>{user ? user.Curso : ''}</span>
           </div>
         </div>
 
