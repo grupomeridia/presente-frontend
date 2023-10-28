@@ -13,6 +13,7 @@ export default function historicoAluno() {
     const [historico, setHistorico] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [historicoFiltrada, setHistoricoFiltrada] = useState([]);
+    const [faltasPresencas, setFaltasPresencas] = useState({ faltas: 0, nome: '', presencas: 0 });
 
     const fetchPresencasAluno = () => {
         api.aluno.findChamadaByAluno(aluno)
@@ -26,6 +27,21 @@ export default function historicoAluno() {
             });
     };
 
+    const fetchFaltasPresencas = () => {
+        api.aluno.presencasFaltas(aluno)
+            .then(response => {
+                setFaltasPresencas(response.data);
+                console.log(`presencas faltas ` + response.data);
+            })
+            .catch(error => {
+                console.log("Error ao buscar a lista de presencas", error);
+            });
+    };
+
+    useEffect(() => {
+        fetchFaltasPresencas();
+    }, [aluno]);
+
     useEffect(() => {
         fetchPresencasAluno();
     }, [aluno]);
@@ -36,23 +52,10 @@ export default function historicoAluno() {
 
         const filteredList = historico.filter(item =>
             item.nome.toLowerCase().includes(value.toLowerCase())
-          );
-      
-          setHistoricoFiltrada(filteredList);
+        );
+
+        setHistoricoFiltrada(filteredList);
     };
-
-    // useEffect(() =>{
-    //     const fetchPresencasAluno = async () => {
-    //         try{
-    //             const resposnse = await api.aluno.findChamadaByAluno(aluno);
-    //             setHistorico(resposnse.data);
-    //         }catch(error){
-    //             console.error("Erro ao buscar as presenças", error);
-    //         }
-    //     };
-    //     fetchPresencasAluno();
-    // }, )
-
 
     return (
         <div>
@@ -61,15 +64,21 @@ export default function historicoAluno() {
             <section className={styles.page_content}>
                 <section className={styles.inner_content}>
                     <div className={styles.div_content}>
-                        <div className={styles.dados}>
-                            <div>
-                                <h1>9</h1>
-                                <p>Presencas</p>
-                            </div>
-                            <div>
-                                <h1>1</h1>
-                                <p>Faltas</p>
-                            </div>
+                        <div>
+                            {faltasPresencas && faltasPresencas.nome ? (
+                                <div className={styles.dados}>
+                                    <div>
+                                        <h1>{faltasPresencas.presencas}</h1>
+                                        <p>Presencas</p>
+                                    </div>
+                                    <div>
+                                        <h1>{faltasPresencas.faltas}</h1>
+                                        <p>Faltas</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p>Carregando...</p>
+                            )}
                         </div>
                         <div className={styles.search_input}>
                             <div>
@@ -81,21 +90,21 @@ export default function historicoAluno() {
                     </div>
                     <div className={styles.div_table}>
                         <table className={styles.tabela}>
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Dia/Hora</th>
-                                    <th>Status</th>
-                                    <th>Tipo de Presenca</th>
+                            <thead className={styles.tableHeader}>
+                                <tr className={styles.row}>
+                                    <th className={styles.headerCell}>Nome</th>
+                                    <th className={styles.headerCell}>Dia/Hora</th>
+                                    <th className={styles.headerCell}>Status</th>
+                                    <th className={styles.headerCell}>Tipo de Presenca</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className={styles.tableBody}>
                                 {historicoFiltrada.map((item) => (
-                                    <tr key={item.id_presenca}>
-                                        <td>{item.nome}</td>
-                                        <td>{item.horario}</td>
-                                        <td>{item.status ? "ativo" : "inativo"}</td>
-                                        <td>{item.tipo_presenca}</td>
+                                    <tr key={item.id_presenca} className={styles.row}>
+                                        <td className={styles.cell}>{item.nome}</td>
+                                        <td className={styles.cell}>{item.horario}</td>
+                                        <td className={styles.cell}>{item.status ? "ativo" : "inativo"}</td>
+                                        <td className={styles.cell}>{item.tipo_presenca}</td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -93,7 +93,7 @@ useEffect(() => {
           /> */}
           <div className={styles.userText}>
             <span className={styles.userName}>{user ? user.Nome : ''}</span>
-            <span className={styles.userCourse}>{user ? user.Curso : ''}</span>
+            <span className={styles.userCourse}>{user ? user.Nome : ''}</span>
           </div>
         </div>
 

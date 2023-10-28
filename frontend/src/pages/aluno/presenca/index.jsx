@@ -23,7 +23,10 @@ function presencaAluno() {
 
   const [aluno, setALuno] = useState(1);
   const [chamadasAbertas, setChamadasAbertas] = useState([]);
-  const [ra, setRa] = useState(234325);
+  const [ra, setRa] = useState(123456);
+  const [historico, setHistorico] = useState([]);
+
+  historico.reverse();
 
   useEffect(() => {
     api.aluno
@@ -57,8 +60,6 @@ function presencaAluno() {
       });
   };
 
-  const [historico, setHistorico] = useState([]);
-
   const fetchPresencasAluno = () => {
     api.aluno.findChamadaByAluno(aluno)
       .then(response => {
@@ -75,6 +76,8 @@ function presencaAluno() {
   }, [aluno]);
 
 
+
+
   return (
     <div>
       <Cabecalho />
@@ -86,30 +89,39 @@ function presencaAluno() {
               <h1>Chamadas abertas</h1>
             </div>
             <table className={styles.tabela}>
-              <thead>
-                <tr>
-                  <th>Professor</th>
-                  <th>Projeto</th>
-                  <th>Abertura</th>
-                  <th>Encerramento</th>
+              <thead className={styles.tableHeader}>
+                <tr className={styles.row}>
+                  <th className={styles.headerCell}>Professor</th>
+                  <th className={styles.headerCell}>materia</th>
+                  <th className={styles.headerCell}>Abertura</th>
+                  <th className={styles.headerCell}>Encerramento</th>
+                  <th className={styles.headerCell}>Acoes</th>
                 </tr>
               </thead>
-              <tbody>
-                {chamadasAbertas.map((chamada) => (
-                  <tr key={chamada.id}>
-                    <td className={styles.td}>{chamada.professor_nome}</td>
-                    <td>{chamada.materia_nome}</td>
-                    <td>{chamada.abertura}</td>
-                    <td>{chamada.encerramento ? chamada.encerramento : "não definido"}</td>
-                    <td>
-                      <button className={styles.botaoRealizaChamada} onClick={() => fazerChamada(chamada.id_chamada)}>
-                        Marcar Presenca
-                        {/* <BsFillCheckCircleFill/> */}
-                      </button>
-                    </td>
+              {chamadasAbertas && chamadasAbertas.length > 0 ? (
+                <tbody className={styles.tableBody}>
+                  {chamadasAbertas.map((chamada) => (
+                    <tr key={chamada.id} className={styles.row}>
+                      <td className={styles.cell}>{chamada.professor_nome}</td>
+                      <td className={styles.cell}>{chamada.materia_nome}</td>
+                      <td className={styles.cell}>{chamada.abertura}</td>
+                      <td className={styles.cell}>{chamada.encerramento ? chamada.encerramento : "não definido"}</td>
+                      <td className={styles.cell}>
+                        <button className={styles.botaoRealizaChamada} onClick={() => fazerChamada(chamada.id_chamada)}>
+                          Marcar Presenca
+                          {/* <BsFillCheckCircleFill/> */}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              ) : (
+                <tbody className={styles.tableBody}>
+                  <tr className={styles.row}>
+                    <td colSpan="5" className={styles.cell}>Nao ha chamadas</td>
                   </tr>
-                ))}
-              </tbody>
+                </tbody>
+              )}
             </table>
 
           </div>
@@ -118,24 +130,24 @@ function presencaAluno() {
               <h1>Ultimas Chamadas</h1>
             </div>
             <table className={styles.tabela}>
-              <thead>
-                <tr>
-                  <th>Nome</th>
-                  <th>Dia/Hora</th>
-                  <th>Status</th>
-                  <th>Tipo de Presenca</th>
-                </tr>
-              </thead>
-              <tbody>
-                {historico.map((item) => (
-                  <tr key={item.id_presenca}>
-                    <td>{item.nome}</td>
-                    <td>{item.horario}</td>
-                    <td>{item.status ? "ativo" : "inativo"}</td>
-                    <td>{item.tipo_presenca}</td>
+              {historico && historico.length > 0 ? (
+                <tbody className={styles.tableBody}>
+                  {historico.slice(0, 4).map((item) => (
+                    <tr key={item.id_presenca} className={styles.row}>
+                      <td className={styles.cell}>{item.nome}</td>
+                      <td className={styles.cell}>{item.horario}</td>
+                      <td className={styles.cell}>{item.status ? "ativo" : "inativo"}</td>
+                      <td className={styles.cell}>{item.tipo_presenca}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              ) : (
+                <tbody className={styles.tableBody}>
+                  <tr className={styles.row}>
+                    <td colSpan="4" className={styles.cell}>Semhistorico</td>
                   </tr>
-                ))}
-              </tbody>
+                </tbody>
+              )}
             </table>
           </div>
         </section>
