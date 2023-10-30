@@ -2,13 +2,14 @@ import Navbar from "@/components/Navbar/navbar";
 import styles from "./style.module.css";
 import { Fundo } from "@/components/Fundo/fundo";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import api from "@/client/api";
 
 export default function Presenca() {
   const [ra, setRa] = useState(null);
   const [serverResponse, setServerResponse] = useState(null);
+  const [buttonClicked, setButtonClicked] = useState(false);
 
   const MarcarPresenca = () => {
     const body = {
@@ -20,26 +21,40 @@ export default function Presenca() {
       .then((response) => {
         console.log("Chamada marcada com sucesso:", response.data);
         setServerResponse(response.data);
+        setButtonClicked(true);
       })
       .catch((error) => {
         console.error("Erro:", error);
         if (error.response) {
           console.error("Detalhes do erro:", error.response.data);
           setServerResponse(error.response.data);
+          setButtonClicked(true);
         }
       });
   };
 
-  const renderResponseMessage = () => {
-    if (!ra) {
-      return "Por favor, insira um RA.";
+  const renderResponse = () => {
+    if (!buttonClicked) {
+      return null;
+    } else {
+      const successIcon = "✅";
+      const errorIcon = "❌";
+      const responseMessage = serverResponse || "";
+
+      if (serverResponse === "presença registrada") {
+        return (
+          <div>
+            {successIcon} {responseMessage}
+          </div>
+        );
+      } else {
+        return (
+          <div>
+            {errorIcon} {responseMessage}
+          </div>
+        );
+      }
     }
-    if (serverResponse && serverResponse.mensagem) {
-      return serverResponse.mensagem === "presença registrada"
-        ? `✅ ${serverResponse.mensagem}`
-        : `❌ ${serverResponse.mensagem}`;
-    }
-    return ""; // Ou retorne uma mensagem padrão se preferir.
   };
 
   return (
@@ -48,7 +63,7 @@ export default function Presenca() {
       <Cabecalho />
       <Fundo>
         <div className={styles.fundoContainer}>
-          <div className={styles.serverResponse}>{renderResponseMessage()}</div>
+          <div className={styles.serverResponse}>{renderResponse()}</div>
           <div className={styles.form_center}>
             <div className={styles.form}>
               <h2 className={styles.titulo}>Realizar Presença</h2>

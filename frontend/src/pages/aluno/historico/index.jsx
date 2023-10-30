@@ -7,64 +7,114 @@ import Cabecalho from "@/components/Cabecalho/cabecalho";
 import { text } from "@fortawesome/fontawesome-svg-core";
 
 
-function historicoAluno(){
+export default function historicoAluno() {
 
+    const [aluno, setAluno] = useState(1);
+    const [historico, setHistorico] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [historicoFiltrada, setHistoricoFiltrada] = useState([]);
+    const [faltasPresencas, setFaltasPresencas] = useState({ faltas: 0, nome: '', presencas: 0 });
 
+    const fetchPresencasAluno = () => {
+        api.aluno.findChamadaByAluno(aluno)
+            .then(response => {
+                setHistorico(response.data);
+                setHistoricoFiltrada(response.data);
+                console.log(response.data);
+            })
+            .catch(error => {
+                console.log("Error ao buscar a lista de presencas", error);
+            });
+    };
 
+    const fetchFaltasPresencas = () => {
+        api.aluno.presencasFaltas(aluno)
+            .then(response => {
+                setFaltasPresencas(response.data);
+                console.log(`presencas faltas ` + response.data);
+            })
+            .catch(error => {
+                console.log("Error ao buscar a lista de presencas", error);
+            });
+    };
 
-    return(
+    useEffect(() => {
+        fetchFaltasPresencas();
+    }, [aluno]);
+
+    useEffect(() => {
+        fetchPresencasAluno();
+    }, [aluno]);
+
+    const handleSearch = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+
+        const filteredList = historico.filter(item =>
+            item.nome.toLowerCase().includes(value.toLowerCase())
+        );
+
+        setHistoricoFiltrada(filteredList);
+    };
+
+    return (
         <div>
-        <Cabecalho/>
-        <Navbar/>
+            <Cabecalho />
+            <Navbar />
             <section className={styles.page_content}>
                 <section className={styles.inner_content}>
                     <div className={styles.div_content}>
-                        <div className={styles.dados}>                   
-                            <div>
-                                <h1>9</h1>
-                                <p>Chamadas realizadas</p>
-                            </div>
-                            <div>
-                                <h1>1</h1>
-                                <p>Faltas</p>
-                            </div>
+                        <div>
+                            {faltasPresencas && faltasPresencas.nome ? (
+                                <div className={styles.dados}>
+                                    <div>
+                                        <h1>{faltasPresencas.presencas}</h1>
+                                        <p>Presencas</p>
+                                    </div>
+                                    <div>
+                                        <h1>{faltasPresencas.faltas}</h1>
+                                        <p>Faltas</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p>Carregando...</p>
+                            )}
                         </div>
                         <div className={styles.search_input}>
-                        <div>
-                            <input type="text"></input>
-                            <div>buscar</div>
-                        </div>
+                            <div>
+                                <input type="text" placeholder="Pesquisar..."
+                                    value={searchTerm}
+                                    onChange={handleSearch}></input>
+                            </div>
                         </div>
                     </div>
                     <div className={styles.div_table}>
                         <table className={styles.tabela}>
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Dia</th>
-                                    <th>RA</th>
-                                    <th>Projeto/Materia</th>
-                                    <th>Professor</th>
-                                    <th>Periodo</th>
+                            <thead className={styles.tableHeader}>
+                                <tr className={styles.row}>
+                                    <th className={styles.headerCell}>Nome</th>
+                                    <th className={styles.headerCell}>Dia/Hora</th>
+                                    <th className={styles.headerCell}>Status</th>
+                                    <th className={styles.headerCell}>Tipo de Presenca</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Carlos</td>
-                                    <td>22/06</td>
-                                    <td>903497</td>
-                                    <td>Pizaria</td>
-                                    <td>Willian</td>
-                                    <td>3° Periodo</td>
-                                </tr>
+                            <tbody className={styles.tableBody}>
+                                {historicoFiltrada.map((item) => (
+                                    <tr key={item.id_presenca} className={styles.row}>
+                                        <td className={styles.cell}>{item.nome}</td>
+                                        <td className={styles.cell}>{item.horario}</td>
+                                        <td className={styles.cell}>{item.status ? "ativo" : "inativo"}</td>
+                                        <td className={styles.cell}>{item.tipo_presenca}</td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
                 </section>
             </section>
-            <Footer/>
+            <Footer />
         </div>
     );
-}
 
-export default historicoAluno;
+
+}
