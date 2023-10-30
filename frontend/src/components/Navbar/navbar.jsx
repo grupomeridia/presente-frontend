@@ -50,8 +50,8 @@ useEffect(() => {
   const getMenuItems = () => {
     if (userType === "Aluno") {
       return [
-        { name: "Histórico", icon: faHistory, link: "aluno/historico" },
-        { name: "Presença", icon: faUserCheck, link: "aluno/presenca" },
+        { name: "Histórico", icon: faHistory, link: "/aluno/historico" },
+        { name: "Presença", icon: faUserCheck, link: "/aluno/presenca" },
       ];
     }
 
