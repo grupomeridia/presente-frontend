@@ -89,7 +89,7 @@ export default function Dashboard() {
   const GraficoBarraOptions = {
     plugins: {
       legend: {
-        display:false,
+        display: false,
         labels: {
           color: "white",
         },
@@ -204,22 +204,41 @@ export default function Dashboard() {
           </div>
         </section>
         <section className={styles.graficosCircularContent}>
-
-          <div className={styles.grafico}>
-            <GraficoCircular
-              data={GraficoCircularDataAlunosAusentes}
-              options={GraficoCircularOptions}
-              className={styles.Doughnut}
-            />
+          
+          <div className={styles.graficoDiv}>
+            {GraficoCircularDataAlunosAusentes == null ? (
+              <div className={styles.grafico}>
+                <GraficoCircular
+                  data={GraficoCircularDataAlunosAusentes}
+                  options={GraficoCircularOptions}
+                  className={styles.Doughnut}
+                />
+              </div>
+            ) : (
+              <p>Teste</p>
+            )}
           </div>
-
-          <div className={styles.grafico}>
+          
+          <div className={styles.graficoDiv}>
+            {GraficoCircularDataAlunosAtivos == null ? (
+              <div className={styles.grafico}>
+                <GraficoCircular
+                  data={GraficoCircularDataAlunosAtivos}
+                  options={GraficoCircularOptions}
+                  className={styles.Doughnut}
+                />
+              </div>
+            ) : (
+              <p>Teste</p>
+            )}
+          </div>
+          {/* <div className={styles.grafico}>
             <GraficoCircular
               data={GraficoCircularDataAlunosAtivos}
               options={GraficoCircularOptions}
               className={styles.Doughnut}
             />
-          </div>
+          </div> */}
 
 
         </section>
