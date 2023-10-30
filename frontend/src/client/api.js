@@ -5,7 +5,6 @@ const httpClient = axios.create({
 });
 
 const api = {
-  
    aluno: {
       findById: (id) => httpClient.get('/api/aluno', id),
       listAll: () => httpClient.get('/api/aluno/listAll'),

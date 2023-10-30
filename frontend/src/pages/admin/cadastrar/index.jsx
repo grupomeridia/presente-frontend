@@ -8,6 +8,7 @@ import {
   faUser,
   faChalkboardTeacher,
   faBook,
+  faPeopleGroup
 } from "@fortawesome/free-solid-svg-icons";
 
 import api from "@/client/api";
@@ -21,26 +22,155 @@ export default function Cadastrar() {
   const [senha, setSenha] = useState(null);
   const [ra, setRa] = useState(null);
   const [selectedTurma, setSelectedTurma] = useState(null);
+  const [selectedMateria, setselectedMateria] = useState(null);
   const [nomeMateria, setNomeMateria] = useState(null);
+  const [nomeTurma, setNomeTurma] = useState(null);
   const [turmas, setTurmas] = useState([]);
+  const [materias, setMaterias] = useState([]);
+  const [ano,setAno] = useState(null);
+  const [curso,setCurso] = useState(null);
+  const [modalidade,setModalidade] = useState(null);
+  const [selectCurso,setSelectedCurso] = useState(null);
+  const [turno,setTurno] = useState(null);
+  const [selectTurno,setSelectedTurno] = useState(null);
+  const [semestre,setSemestre] = useState(null);
   const [turmaId, setTurmaId] = useState("");
   const [IdProfessor, setIdProfessor] = useState();
   const [IdAluno, setIdAluno] = useState();
+  const [previousCargo, setPreviousCargo] = useState(null);
+
+
+  const resetFormStates = () => {
+    setCargo("");
+    setSelectedCargo(null);
+    setNome(null);
+    setLogin(null);
+    setSenha(null);
+    setRa(null);
+    setSelectedTurma(null);
+    setselectedMateria(null);
+    setNomeMateria(null);
+    setNomeTurma(null);
+    setAno(null);
+    setCurso(null);
+    setModalidade(null);
+    setSelectedCurso(null);
+    setTurno(null);
+    setSelectedTurno(null);
+    setSemestre(null);
+    setTurmaId("");
+    setIdProfessor(null);
+    setIdAluno(null);
+  };
+
+  useEffect(() => {
+    resetFormStates();
+  }, [activeForm]);
+
+
+  useEffect(() => {
+    if (previousCargo === 'Aluno' && (cargo === 'Professor' || cargo === 'Secretaria')) {
+      setSenha("");
+      setLogin("");
+      setNome("");
+      setRa("");
+      setSelectedTurma("");
+    }
+    if (previousCargo === 'Professor' && (cargo === 'Aluno' || cargo === 'Secretaria')) {
+      setSenha("");
+      setLogin("");
+      setNome("");
+      setSelectedTurma("");
+    }
+    if (previousCargo === 'Secretaria' && (cargo === 'Aluno' || cargo === 'Professor')) {
+      setSenha("");
+      setLogin("");
+      setNome("");
+    }
+
+    setPreviousCargo(cargo);
+  }, [cargo]);
+  
+/// listAlls
+
+  useEffect(() => {
+    api.turma
+      .listAll()
+      .then((response) => {
+        console.log(response.data);
+        setTurmas(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as chamadas abertas:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    api.materia
+      .listAll()
+      .then((response) => {
+        console.log(response.data);
+        setMaterias(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as chamadas abertas:", error);
+      });
+  }, []);
+
+  /////
+
+  //Creates
+
+  const CriarTurma = () => {
+    const payload = {
+      ano: parseInt(ano,10),
+      semestre: semestre,
+      curso: curso,
+      modalidade: modalidade,
+      nome: nomeTurma,
+      turno:turno,
+      id_materia: selectedMateria,
+    };
+  
+    console.log("Payload:", payload);
+  
+    api.turma
+      .create(payload)
+      .then((response) => {
+        alert("Turma criada com sucesso!");
+      })
+      .catch((error) => {
+        if (error.response && error.response.data) {
+          alert(error.response.data);
+          console.error(error.response.data);
+        } else {
+          alert("Ocorreu um erro ao criar turma.");
+          console.error(error);
+        }
+      });
+  };
+
 
   const CriarMateria = () => {
     const payload = {
       nome: nomeMateria,
     };
-
+  
     console.log("Payload:", payload);
-
+  
     api.materia
       .create(payload)
       .then((response) => {
-        alert("Materia criado com sucesso!");
+        alert("Matéria criada com sucesso!");
       })
       .catch((error) => {
-        alert(error.response.data);
+        if (error.response && error.response.data) {
+          alert(error.response.data);
+          console.error(error.response.data);
+        } else {
+          alert("Ocorreu um erro ao criar a matéria.");
+          console.error(error);
+        }
       });
   };
 
@@ -50,10 +180,10 @@ export default function Cadastrar() {
       login: login,
       senha: senha,
       cargo: cargo,
-      ra: cargo === "Aluno" ? ra : null,
+      ra: cargo === "Aluno" ? parseInt(ra, 10) : null,
     };
 
-    if ((cargo === "Professor" || cargo === "Aluno") && (!selectedTurma || selectedTurma === "")) {
+    if ((cargo === "Professor" || cargo === "Aluno" || cargo === "Secretaria") && (!selectedTurma || selectedTurma === "")) {
       alert("Por favor, selecione uma turma antes de continuar.");
       return; 
   }
@@ -70,19 +200,17 @@ export default function Cadastrar() {
 
         if (cargo == 'Professor'){
          userId = response.data.id_professor;
+         setIdProfessor(userId);
+         CadastrarProfessorouAlunoNaTurma(userId);
         }
-        if(cargo == 'Aluno'){
+        else if(cargo == 'Aluno'){
           userId = response.data.id_aluno;
-        }
-        
-        else if (cargo === "Professor") {
-          setIdProfessor(userId);
-          CadastrarProfessorouAlunoNaTurma(userId);
-        } else if (cargo === "Aluno") {
           setIdAluno(userId);
           CadastrarProfessorouAlunoNaTurma(userId);
         }
-        // return "Erro";
+        else{
+          console.log("Erro aqui na api.usuario");
+        }
         
       })
       .catch((error) => {
@@ -95,21 +223,6 @@ export default function Cadastrar() {
       });
   };
 
-  useEffect(() => {
-    api.turma
-      .listAll()
-      .then((response) => {
-        console.log(response.data);
-        if(response.data.cargo == "Aluno"){
-
-        }
-        setTurmas(response.data);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar as chamadas abertas:", error);
-      });
-  }, []);
-
   const CadastrarProfessorouAlunoNaTurma = (userId) => {
     if (cargo === "Professor") {
       const payload = {
@@ -118,7 +231,7 @@ export default function Cadastrar() {
       };
 
       console.log(
-        "Enviando payload CadastrarProfessorouAlunoNaTurma:",
+        "Enviando payload Cadastramento de Professor na turma:",
         payload
       );
 
@@ -139,7 +252,7 @@ export default function Cadastrar() {
         id_aluno: userId,
       };
 
-      console.log("Enviando payload:", payload);
+      console.log("Enviando payload Cadastramento de Aluno na turma:", payload);
 
       api.turma
         .alunoNaTurma(payload)
@@ -151,7 +264,9 @@ export default function Cadastrar() {
         });
     }
   };
-
+  ///////////////////////
+  // Mudança do Forms pra cadastro
+  
   const renderForm = () => {
     switch (activeForm) {
       case "usuario":
@@ -203,7 +318,7 @@ export default function Cadastrar() {
                   value={selectedTurma}
                   onChange={(e) => setSelectedTurma(e.target.value)}
                 >
-                  <option value="">Turma</option>
+                  <option value="">Selecione uma turma para o {cargo} </option>
                   {turmas.map((turma) => (
                     <option key={turma.id_turma} value={turma.Id}>
                       {turma.Nome}
@@ -226,7 +341,7 @@ export default function Cadastrar() {
                 type="text"
                 placeholder="Informe a senha"
               />
-              <button onClick={CriarUsuario} className={styles.botao}  disabled={!selectedTurma || selectedTurma === ""}>
+              <button onClick={CriarUsuario} className={styles.botao} disabled={cargo !== "Secretaria" && (!selectedTurma || selectedTurma === "")}>
                 Salvar
               </button>
             </div>
@@ -250,6 +365,100 @@ export default function Cadastrar() {
             </div>
           </div>
         );
+        case "turma":
+          return (
+            <div className={styles.form_center}>
+            <div className={styles.form}>
+              <h2 className={styles.titulo}>Cadastro de Turma</h2>
+              <label>Insira o nome da turma:</label>
+              <input
+                className={styles.input}
+                value={nomeTurma}
+                onChange={(e) => setNomeTurma(e.target.value)}
+                type="text"
+              />
+              <label>Insira o semestre:</label>
+              <input
+                className={styles.input}
+                value={semestre}
+                onChange={(e) => setSemestre(e.target.value)}
+                type="text"
+              />
+              <label>Insira o ano:</label>
+              <input
+                className={styles.input}
+                value={ano}
+                onChange={(e) => setAno(e.target.value)}
+                type="text"
+              />
+
+                <select
+                  className={styles.input}
+                  id="materia"
+                  value={selectedMateria}
+                  onChange={(e) => setselectedMateria(e.target.value)}
+                >
+                  <option value="">Selecione uma materia</option>
+                  {materias.map((materia) => (
+                    <option key={materia.id_materia} value={materia.Id}>
+                      {materia.Nome}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                className={styles.input}
+                type="text"
+                value={curso}
+                onChange={(e) => {
+                  setCurso(e.target.value);
+                  setSelectedCurso(e.target.value);
+                }}
+              >
+                <option value="" disabled selected>
+                  Selecione um curso
+                </option>
+                <option value="Engenharia de Software">Engenharia de Software</option>
+                <option value="Análise e Desenvolvimento de Sistemas">Análise e desenvolvimento de sistemas</option>
+              </select>
+
+              <select
+                className={styles.input}
+                type="text"
+                value={turno}
+                onChange={(e) => {
+                  setTurno(e.target.value);
+                }}
+              >
+                <option value="" disabled selected>
+                  Selecione o Turno
+                </option>
+                <option value="Matutino">Matutino</option>
+                <option value="Vespertino">Vespertino</option>
+                <option value="Noturno">Noturno</option>
+              </select>
+
+              <select
+                className={styles.input}
+                type="text"
+                value={modalidade}
+                onChange={(e) => {
+                  setModalidade(e.target.value);
+                }}
+              >
+                <option value="" disabled selected>
+                  Selecione a Modalidade
+                </option>
+                <option value="Online">Online</option>
+                <option value="Presencial">Presencial</option>
+              </select>
+
+              <button onClick={CriarTurma} className={styles.botao}>
+                Salvar
+              </button>
+            </div>
+          </div>
+          );
       default:
         return null;
     }
@@ -284,6 +493,18 @@ export default function Cadastrar() {
               >
                 <FontAwesomeIcon icon={faBook} size="2x" color="white" />
                 <p style={{ color: "white" }}>Matéria</p>
+              </div>
+            </div>
+
+            <div className={styles.back}>
+              <div
+                className={`${styles.iconItem} ${
+                  activeForm === "turma" ? styles.selectedItem : ""
+                }`}
+                onClick={() => setActiveForm("turma")}
+              >
+                <FontAwesomeIcon icon={faPeopleGroup} size="2x" color="white" />
+                <p style={{ color: "white" }}>Turma</p>
               </div>
             </div>
           </div>
