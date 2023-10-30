@@ -13,34 +13,33 @@ import {
 import { useState, useEffect } from "react";
 import Cabecalho from "../Cabecalho/cabecalho";
 import { useRouter } from "next/router";
-import { useUser } from '@/contexts/UserContext';
+import { useUser } from "@/contexts/UserContext";
 
 const Navbar = () => {
   const [activeItem, setActiveItem] = useState("");
   const { user } = useUser();
-  const [userType, setUserType] = useState(); // Substitua por 'aluno' ou 'professor' conforme necessário
-  const [userImage, setUserImage] = useState(""); // lembrar de colocar aqui a imagen dafault
+  const [userType, setUserType] = useState(); 
+  const [userImage, setUserImage] = useState(""); 
   const router = useRouter();
- 
+
   useEffect(() => {
     if (user) {
       console.log("User:", user);
       setUserType(user.Cargo);
     }
-}, [user]);
+  }, [user]);
 
-useEffect(() => {
-  console.log("Pathname:", router.pathname, "User Type:", userType);
-  if (user && user.Cargo === 'professor') {
-    const restrictedRoutes = ['/admin', '/aluno'];
+  useEffect(() => {
+    console.log("Pathname:", router.pathname, "User Type:", userType);
+    if (user && user.Cargo === "professor") {
+      const restrictedRoutes = ["/admin", "/aluno"];
 
-    if (restrictedRoutes.some(route => router.pathname.startsWith(route))) {
-      console.log("Redirecting to /home...");
-      router.push('/home');
+      if (restrictedRoutes.some((route) => router.pathname.startsWith(route))) {
+        console.log("Redirecting to /home...");
+        router.push("/home");
+      }
     }
-  }
-}, [router.pathname, user]);
-
+  }, [router.pathname, user]);
 
   useEffect(() => {
     const fetchedImage = ""; //adiciona aqui o caminho pra pegar a imagen no backend
@@ -59,7 +58,11 @@ useEffect(() => {
       return [
         { name: "Frequência", icon: faHistory, link: "/professor/frequencia" },
         { name: "Chamada", icon: faUserCheck, link: "/professor/chamada" },
-        {name: "Presença",icon: faChalkboardTeacher,link: "/professor/presenca",},
+        {
+          name: "Presença",
+          icon: faChalkboardTeacher,
+          link: "/professor/presenca",
+        },
       ];
     }
 
@@ -92,8 +95,14 @@ useEffect(() => {
             height={50}
           /> */}
           <div className={styles.userText}>
-            <span className={styles.userName}>{user ? user.Nome : ''}</span>
-            <span className={styles.userCourse}>{user ? user.Curso : ''}</span>
+            <span className={styles.userName}>{user ? user.Nome : ""}</span>
+            <span className={styles.userCourse}>
+              {user
+                ? user.Cargo == "Professor" || user.Cargo == "Secretaria"
+                  ? user.Cargo
+                  : user.Curso
+                : ""}
+            </span>
           </div>
         </div>
 
