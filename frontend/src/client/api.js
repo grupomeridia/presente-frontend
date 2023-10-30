@@ -17,6 +17,9 @@ const api = {
       chamadasAbertas: (id_aluno) => httpClient.get(`/api/chamada/aluno?id=` + id_aluno),
       presenca: (body) => httpClient.post('/api/presenca/ra', body),
    },
+   admin: {
+      findByAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=` + id_turma)
+   },
    chamada: {
       findById: (id) => httpClient.get('api/chamada', id),
       listAll: () => httpClient.get('/api/chamada/listAll'),
