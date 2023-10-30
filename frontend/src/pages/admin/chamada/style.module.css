@@ -1,0 +1,84 @@
+
+.contentChamada{
+    display: flex;
+    flex-direction: column;
+    height: 45vh;
+    align-items: center;
+    margin-bottom: 50px;
+    color:white;
+}
+
+.contentChamadaAberta{
+    display: flex;
+    flex-direction: column;
+    height: 35vh;
+    align-items: center;
+    color: white;
+}
+
+.botaoFechar{
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.inputArea{
+    display: flex;
+    height: 40vh;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.inputArea div select{
+    width: 700px;
+    height: 2.5rem;
+    border-radius: 15px;
+}
+
+.inputArea div input{
+    width: 700px;
+    height: 2.5rem;
+}
+
+.inputAreaDataInsert{
+    display: flex;
+    flex-direction: column;
+}
+
+.a{
+    display: flex;
+    flex-direction: column;
+}
+
+.a input{
+    width: 700px;
+    height: 2.5rem;
+    border-radius: 15px;
+}
+
+.contentChamadaAberta div{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+.contentChamadaAberta div table{
+    width: 65%;
+    background-color: white;
+    color: #203867;
+    border-radius: 15px;
+}
+.contentChamadaAberta div table tbody tr{
+    height: 2.5rem;
+}
+
+.divButton{
+    width: 100%;
+    text-align: center; 
+}
+
+.divButton button{
+    width: 50%;
+    height: 2.5rem;
+    border-radius: 15px;
+    cursor: pointer;
+}
