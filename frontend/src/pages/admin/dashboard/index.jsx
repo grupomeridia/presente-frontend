@@ -147,7 +147,7 @@ export default function Dashboard() {
     },
   };
 
-  const ajusteValores = valores.map((value) => Math.min(value, 100));
+const ajusteValores = valores.map((value) => Math.min(value, 100));
 
   const GraficoCircularDataAlunosAusentes = {
     labels: ["Presentes", "Ausentes"],
