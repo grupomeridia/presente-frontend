@@ -65,7 +65,8 @@ const api = {
         alunoNaTurma: (id_turma,id_aluno) => httpClient.post('/api/turma/cadastrarAluno',id_turma,id_aluno),
      },
      materia:{
-      create: (payload) => httpClient.post('api/materia', payload)
+      create: (payload) => httpClient.post('api/materia', payload),
+      listAll: () => httpClient.get('api/materia/listAll'),
      },
      usuario: {
       create: (payload) => httpClient.post('api/usuario', payload),
