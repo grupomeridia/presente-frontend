@@ -9,6 +9,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
 import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 import api from "@/client/api";
+import { sendError } from "next/dist/server/api-utils";
 
 Chart.register(ChartDataLabels);
 
@@ -18,19 +19,16 @@ export default function Dashboard() {
   const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
   const [valores, setValores] = useState([50, 150, 80, 50, 90]);
   const [periodType, setPeriodType] = useState("dia");
-  const [alunosAusentes, setAlunosAusentes] = useState([]);
+  
   const [idTurma, setIdTurma] = useState(1);
+  const [turmas, setTurmas] = useState([]);
+  const [selectedName, setSelectedName] = useState("");
 
-  // const fetchMediaSemanal = () => {
-  //   api.professor.mediaSemanal(idProfessor)
-  //     .then(response => {
-  //       console.log("Dados da resposta:", response.data);
-  //       setMediaSemanalData(response.data);
-  //     })
-  //     .catch(error => {
-  //       console.error("Erro ao buscar a média semanal:", error);
-  //     });
-  // }
+  const [turmaData, setTurmaData] = useState("");
+  const [alunosAusentes, setAlunosAusentes] = useState([]);
+  const [alunosAtivos, setAlunosAtivos] = useState([]);
+  const [mediaAlunosAtivos] = useState([]);
+  const [mediaAlunosAusentes]= useState([]);
 
   const fetchAlunosAusentes = () => {
     api.admin.findByAusentes(idTurma)
@@ -56,8 +54,43 @@ export default function Dashboard() {
     return () => clearInterval(intervalId);
   }, []);
 
+  const fetchTurmas = () =>{
+    api.turma.listAll() 
+    .then( response =>{
+        setTurmas(response.data);
+        console.log(response.data)
+    })
+    .catch(error => {
+      console.error("Erro ao buscar dados da turma:", error);
+    });
+  }
+
+  useEffect(() =>{
+    fetchTurmas();
+  },[])
+
+  const fetchTurmaData = (selectedId) => {
+    api.admin.findByAusentes(selectedId)
+      .then(response => {
+        setTurmaData(response.data);
+        console.log(`dentro do select ${response.data}`)
+      })
+      .catch(error => {
+        console.error("Erro ao buscar dados da turma:", error);
+      });
+  };
+
   const handleSelectChange = (event) => {
-    setSelectedOption(event.target.value);
+    const selectedId =  Number(event.target.value);
+    const selectedTurma = turmas.find(turma => turma.Id === selectedId);
+    console.log(selectedId)
+    console.log(selectedTurma)
+    if (selectedTurma) {
+      setSelectedOption(selectedId);
+      setSelectedName(selectedTurma.Nome);
+      fetchTurmaData(selectedId);
+    }
+
   };
 
   const GraficoCircularOptions = {
@@ -89,7 +122,7 @@ export default function Dashboard() {
   const GraficoBarraOptions = {
     plugins: {
       legend: {
-        display:false,
+        display: false,
         labels: {
           color: "white",
         },
@@ -114,7 +147,7 @@ export default function Dashboard() {
     },
   };
 
-  const ajusteValores = valores.map((value) => Math.min(value, 100));
+const ajusteValores = valores.map((value) => Math.min(value, 100));
 
   const GraficoCircularDataAlunosAusentes = {
     labels: ["Presentes", "Ausentes"],
@@ -188,40 +221,52 @@ export default function Dashboard() {
         <section className={styles.content}>
           <div className={styles.contentHeader}>
             <div>
-              <div>{data.toLocaleString()}</div>
-              <div>Curso selecionado:{selectedOption}</div>
+              {/* <div>{data.toLocaleString()}</div> */}
+              <div>Curso selecionado:{selectedName}</div>
             </div>
             <div className={styles.selectCursos}>
-              <select id="cursos" value={selectedOption} onChange={handleSelectChange}>
-                <option value="" disabled hidden>
-                  Filtrar /cursos
-                </option>
-                <option value="opcao1">Opção 1</option>
-                <option value="opcao2">Opção 2</option>
-                <option value="opcao3">Opção 3</option>
-              </select>
+            <select id="cursos" value={selectedOption} onChange={handleSelectChange}>
+                  <option value="" disabled hidden>
+                    Filtrar /cursos
+                  </option>
+                  {turmas.map((turma) => (
+                    <option key={turma.Id} value={turma.Id}>
+                      {turma.Nome}
+                    </option>
+                  ))}
+                </select>
             </div>
           </div>
         </section>
         <section className={styles.graficosCircularContent}>
 
-          <div className={styles.grafico}>
-            <GraficoCircular
-              data={GraficoCircularDataAlunosAusentes}
-              options={GraficoCircularOptions}
-              className={styles.Doughnut}
-            />
+          <div className={styles.graficoDiv}>
+            {alunosAusentes.length > 0 ? (
+              <div className={styles.grafico}>
+                <GraficoCircular
+                  data={GraficoCircularDataAlunosAusentes}
+                  options={GraficoCircularOptions}
+                  className={styles.Doughnut}
+                />
+              </div>
+            ) : (
+              <h1>Carregando...</h1>
+            )}
           </div>
 
-          <div className={styles.grafico}>
-            <GraficoCircular
-              data={GraficoCircularDataAlunosAtivos}
-              options={GraficoCircularOptions}
-              className={styles.Doughnut}
-            />
+          <div className={styles.graficoDiv}>
+            {alunosAusentes.length > 0 ? (
+              <div className={styles.grafico}>
+                <GraficoCircular
+                  data={GraficoCircularDataAlunosAtivos}
+                  options={GraficoCircularOptions}
+                  className={styles.Doughnut}
+                />
+              </div>
+            ) : (
+              <h1>Carregando...</h1>
+            )}
           </div>
-
-
         </section>
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
@@ -239,9 +284,11 @@ export default function Dashboard() {
                   <option value="" disabled hidden>
                     Filtrar /cursos
                   </option>
-                  <option value="opcaoA">Opção a</option>
-                  <option value="opcaoB">Opção b</option>
-                  <option value="opcaoC">Opção c</option>
+                  {turmas.map((turma) => (
+                    <option key={turma.Id} value={turma.Id}>
+                      {turma.Nome}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -268,13 +315,15 @@ export default function Dashboard() {
             </div>
             <div>
               <div className={styles.selectCursos}>
-                <select id="cursos-alunos-ativos" value={selectedOption} onChange={handleSelectChange}>
+              <select id="cursos-alunos-ausentes" value={selectedOption} onChange={handleSelectChange}>
                   <option value="" disabled hidden>
                     Filtrar /cursos
                   </option>
-                  <option value="opcaoA">Opção a</option>
-                  <option value="opcaoB">Opção b</option>
-                  <option value="opcaoC">Opção c</option>
+                  {turmas.map((turma) => (
+                    <option key={turma.Id} value={turma.Id}>
+                      {turma.Nome}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -292,6 +341,5 @@ export default function Dashboard() {
       </Fundo>
     </>
   );
-
 
 }
