@@ -10,42 +10,64 @@ import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
 import LoadingBar from "@/components/Loading";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
 import api from "@/client/api";
+import { setCallback } from "@/utils/sending";
 
 import { useUser } from "@/contexts/UserContext";
+import withAuth from "@/utils/auth";
 
 
 Chart.register(ChartDataLabels);
 
-export default function Frequencia() {
+const Frequencia = () => {
   const [numAlunosData, setNumAlunosData] = useState(null);
   const { user } = useUser();
   const [idProfessor, setIdProfessor] = useState(user ? user.id_professor : null);
-  const [idChamada, setIdChamada] = useState(null);
+  const [id,setId] = useState();
+  const [idChamada, setIdChamada] = useState();
   const [presentes, setPresentes] = useState();
   const [ausentes, setAusentes] = useState();
   const [totalAlunos, setTotalAlunos] = useState();
   const [porcentagemPresenca, setPorcentagemPresenca] = useState(null);
   const [mediaSemanalData, setMediaSemanalData] = useState([]);
-  const [loading, setLoading] = useState(true); // Mantenha o estado de loading sempre verdadeiro
+  const [loading, setLoading] = useState(true);  
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [chamadasAbertas, setChamadasAbertas] = useState([]);
   
+
+  const fetchChamadasAbertas = () => {
+    api.professor
+      .chamadasAbertas(idProfessor)
+      .then((response) => {
+        console.log(response.data);
+        setChamadasAbertas(response.data);
+        setIdChamada(response.data[0].id_chamada);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as chamadas abertas:", error);
+      });
+  }
+  
+  useEffect(() => {
+    if (user) {
+      console.log("User:", user);
+      setIdProfessor(user.id_professor);
+      console.log("aqui ta o idProfessor:",idProfessor);
+    }
+  }, [user]);
 
 
   useEffect(() => {
-    if (idProfessor) {
-      api.professor.chamadasAbertas(idProfessor)
-        .then(response => {
-          if (response.data && response.data.length > 0) {
-            setIdChamada(response.data[0].id); 
-          }
-        })
-        .catch(error => {
-          console.error("Erro ao buscar chamadas abertas:", error);
-        });
-    }
-  }, [idProfessor]);
+    api.professor
+      .chamadasAbertas(idProfessor)
+      .then((response) => {
+        console.log(response.data[0].id_chamada)
+        setIdChamada(response.data[0].id_chamada);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as chamadas abertas:", error);
+      });
+  }, []);
   
-
   const startLoadingProgress = () => {
     let progress = 0;
     const interval = 1000;
@@ -70,7 +92,9 @@ export default function Frequencia() {
   
   useEffect(() => {
     if (loadingProgress === 100) {
+      fetchChamadasAbertas();
       fetchDados();
+      
     }
   }, [loadingProgress]);
 
@@ -97,6 +121,7 @@ export default function Frequencia() {
 
   useEffect(() => {
     startLoadingProgress();
+    fetchChamadasAbertas();
     fetchDados();
   
     return () => {
@@ -138,7 +163,12 @@ export default function Frequencia() {
             sum += data;
           });
           let percentage = ((value * 100) / sum).toFixed(2) + "%";
-          return percentage;
+          console.log(percentage)
+          if(percentage !== NaN){
+            return "";
+          }else{
+            return percentage ;
+          }
         },
         color: "#fff",
         anchor: "center",
@@ -272,7 +302,7 @@ export default function Frequencia() {
               <h2>Presenças Marcadas</h2>
               <h3>
                 {numAlunosData
-                  ? `${presentes}/${totalAlunos}`
+                  ? `${presentes || 0}/${totalAlunos}`
                   : "Carregando..."}
               </h3>
             </div>
@@ -310,3 +340,5 @@ export default function Frequencia() {
     </>
   );
 }
+
+export default withAuth(Frequencia,['Professor']);
