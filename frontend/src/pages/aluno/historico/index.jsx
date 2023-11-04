@@ -6,8 +6,9 @@ import Footer from "@/components/Footer/Footer";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
 import { text } from "@fortawesome/fontawesome-svg-core";
 
+import withAuth from '@/utils/auth';
 
-export default function historicoAluno() {
+const historicoAluno = () => {
 
     const [aluno, setAluno] = useState(1);
     const [historico, setHistorico] = useState([]);
@@ -116,5 +117,6 @@ export default function historicoAluno() {
         </div>
     );
 
-
 }
+
+export default  withAuth(historicoAluno,['Aluno']);
