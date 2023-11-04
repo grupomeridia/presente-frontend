@@ -2,8 +2,9 @@ import Navbar from "@/components/Navbar/navbar";
 import styles from "./style.module.css";
 import { Fundo } from "@/components/Fundo/fundo";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
+import withAuth from "@/utils/auth";
 
-export default function Lembrete() {
+const Lembrete = () =>  {
   return (
     <>
       <Navbar />
@@ -22,3 +23,5 @@ export default function Lembrete() {
     </>
   );
 }
+
+export default withAuth(Lembrete,['Professor']);
