@@ -11,9 +11,10 @@ import {
   faPeopleGroup
 } from "@fortawesome/free-solid-svg-icons";
 
+import withAuth from '@/utils/auth';
 import api from "@/client/api";
 
-export default function Cadastrar() {
+const Cadastrar = () => {
   const [activeForm, setActiveForm] = useState(null);
   const [cargo, setCargo] = useState("");
   const [SelectedCargo, setSelectedCargo] = useState(null);
@@ -93,29 +94,38 @@ export default function Cadastrar() {
   
 /// listAlls
 
-  useEffect(() => {
-    api.turma
-      .listAll()
-      .then((response) => {
-        console.log(response.data);
-        setTurmas(response.data);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar as chamadas abertas:", error);
-      });
-  }, []);
+const fetchTurmas = () => {
+  api.turma
+    .listAll()
+    .then((response) => {
+      console.log(response.data);
+      setTurmas(response.data);
+    })
+    .catch((error) => {
+      console.error("Erro ao buscar as chamadas abertas:", error);
+    });
+};
 
-  useEffect(() => {
-    api.materia
-      .listAll()
-      .then((response) => {
-        console.log(response.data);
-        setMaterias(response.data);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar as chamadas abertas:", error);
-      });
-  }, []);
+useEffect(() => {
+  fetchTurmas();
+}, []);
+
+const fetchMaterias = () => {
+  api.materia
+    .listAll()
+    .then((response) => {
+      console.log(response.data);
+      setMaterias(response.data);
+    })
+    .catch((error) => {
+      console.error("Erro ao buscar as matérias:", error);
+    });
+};
+
+useEffect(() => {
+  fetchMaterias();
+}, []);
+
 
   /////
 
@@ -138,6 +148,8 @@ export default function Cadastrar() {
       .create(payload)
       .then((response) => {
         alert("Turma criada com sucesso!");
+        fetchTurmas();
+        setNomeTurma("");
       })
       .catch((error) => {
         if (error.response && error.response.data) {
@@ -162,6 +174,9 @@ export default function Cadastrar() {
       .create(payload)
       .then((response) => {
         alert("Matéria criada com sucesso!");
+        // setMaterias([...materias, response.data]);
+        fetchMaterias();
+        setNomeMateria("");
       })
       .catch((error) => {
         if (error.response && error.response.data) {
@@ -515,3 +530,5 @@ export default function Cadastrar() {
     </>
   );
 }
+
+export default withAuth(Cadastrar,['Admin']);
