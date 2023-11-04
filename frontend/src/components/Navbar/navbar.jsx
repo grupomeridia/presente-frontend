@@ -50,14 +50,14 @@ const Navbar = () => {
     if (userType === "Aluno") {
       return [
         { name: "Histórico", icon: faHistory, link: "/aluno/historico" },
-        { name: "Presença", icon: faUserCheck, link: "/aluno/presenca" },
+        { name: "Presença", icon: faUserCheck, link: "/aluno/home" },
       ];
     }
 
     if (userType === "Professor") {
       return [
+        { name: "Chamada", icon: faUserCheck, link: "/professor/home" },
         { name: "Frequência", icon: faHistory, link: "/professor/frequencia" },
-        { name: "Chamada", icon: faUserCheck, link: "/professor/chamada" },
         {
           name: "Presença",
           icon: faChalkboardTeacher,
@@ -68,8 +68,8 @@ const Navbar = () => {
 
     if (userType === "Admin") {
       return [
-        { name: "Dashboard", icon: faTachometerAlt, link: "/dashboardAdmin" },
-        { name: "Chamada", icon: faUserCheck, link: "/chamada-admin" },
+        { name: "Dashboard", icon: faTachometerAlt, link: "/home" },
+        { name: "Chamada", icon: faUserCheck, link: "/chamada" },
         { name: "Cadastrar", icon: faUserPlus, link: "/admin/cadastrar" },
         {
           name: "Presença",
