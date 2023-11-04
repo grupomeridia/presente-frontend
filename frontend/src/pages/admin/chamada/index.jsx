@@ -5,6 +5,8 @@ import Cabecalho from "@/components/Cabecalho/cabecalho";
 import { Fundo } from "@/components/Fundo/fundo";
 import Image from "next/image";
 
+import withAuth from '@/utils/auth';
+
 const initialState = {
     turmaSelecionada: "",
     periodoSelecionado: "",
@@ -14,25 +16,38 @@ const initialState = {
     diaSemana: ""
 };
 
-
-
 function reducer(state, action) {
     return { ...state, [action.field]: action.value };
 }
 
 function ChamadaForm() {
     const [state, dispatch] = useReducer(reducer, initialState);
-
     const handleChange = (field, value) => {
         dispatch({ field, value });
     };
-
     const handleHoraChange = (e) => {
         setHora(e.target.value);
     };
-
-
     const [hora, setHora] = useState("");
+
+    function SelectInput({ value, onChange, options, placeholder }) {
+        return (
+            <div>
+                <select value={value} onChange={(e) => onChange(e.target.value)}>
+                    <option value="" disabled hidden>
+                        {placeholder || "Selecione uma opção"}
+                    </option>
+                    {options.map((option, index) => (
+                        <option key={index} value={option}>
+                            {option}
+                        </option>
+                    ))}
+                </select>
+            </div>
+        );
+    }
+    
+    
     return (
         <>
             <Fundo className={styles.Fundo}>
@@ -115,29 +130,6 @@ function ChamadaForm() {
     );
 }
 
-function SelectInput({ value, onChange, options, placeholder }) {
-    return (
-        <div>
-            <select value={value} onChange={(e) => onChange(e.target.value)}>
-                <option value="" disabled hidden>
-                    {placeholder || "Selecione uma opção"}
-                </option>
-                {options.map((option, index) => (
-                    <option key={index} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
-        </div>
-    );
-}
+export default withAuth(ChamadaForm,['Admin']);
 
-export default function Camada() {
-    return (
-        <>
-            <NavBar />
-            <Cabecalho />
-            <ChamadaForm />
-        </>
-    );
-}
+
