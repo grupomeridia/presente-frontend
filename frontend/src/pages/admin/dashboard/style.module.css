@@ -47,7 +47,7 @@
 }
 
 .grafico{
-    width: 30%;
+    width: 35%;
     height: 20rem;
     background-color: #d9d9d92e;
     border-radius: 15px;
@@ -68,6 +68,7 @@
 .graficosCircularContent{
     display: flex;
     justify-content: space-around;
+    margin-top: 15px;
 }
 
 .Bar {
