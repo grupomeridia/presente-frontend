@@ -9,43 +9,41 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
 import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 import api from "@/client/api";
-
-import withAuth from "@/utils/auth";
+import { sendError } from "next/dist/server/api-utils";
 
 Chart.register(ChartDataLabels);
 
-const Dashboard = () => {
-  
+export default function Dashboard() {
   const [selectedOption, setSelectedOption] = useState("");
   const [data, setData] = useState(new Date());
   const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
-  const [valores, setValores] = useState([50, 150, 80, 50, 90]);
   const [periodType, setPeriodType] = useState("dia");
-  
-  const [idTurma, setIdTurma] = useState(1);
+
   const [turmas, setTurmas] = useState([]);
   const [selectedName, setSelectedName] = useState("");
 
-  const [turmaData, setTurmaData] = useState("");
-  const [alunosAusentes, setAlunosAusentes] = useState([]);
-  const [alunosAtivos, setAlunosAtivos] = useState([]);
-  const [mediaAlunosAtivos] = useState([]);
-  const [mediaAlunosAusentes]= useState([]);
+  const [mediaAlunosFrequentes, setMediaAlunosFrequentes] = useState([]);
+  const [mediaAlunosPresentesAusentes, setMediaAlunosPresentesAusentes] = useState([]);
+  const [turmaPresentesAusentes, setTurmaPresentesAusentes] = useState([]);
+  const [turmaAtivosInativos, setTurmaAtivosInativos] = useState([]);
 
-  const fetchAlunosAusentes = () => {
-    api.admin.findByAusentes(idTurma)
-      .then(response => {
-        setAlunosAusentes(response.data);
-        console.log(response.data);
-      })
-      .catch(error => {
-        console.error("Erro ao buscar a média semanal:", error);
-      });
-  }
 
-  useEffect(() => {
-    fetchAlunosAusentes();
-  }, [idTurma]);
+
+  // const fetchAlunosAusentes = () => {
+  //   api.admin.findByAusentes(idTurma)
+  //     .then(response => {
+  //       setAlunosAusentes(response.data);
+  //       console.log('ausentes presentes');
+  //       console.log(response.data);
+  //     })
+  //     .catch(error => {
+  //       console.error("Erro ao buscar a média semanal:", error);
+  //     });
+  // }
+
+  // useEffect(() => {
+  //   fetchAlunosAusentes();
+  // }, [idTurma]);
 
 
   useEffect(() => {
@@ -56,41 +54,82 @@ const Dashboard = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const fetchTurmas = () =>{
-    api.turma.listAll() 
-    .then( response =>{
-        setTurmas(response.data);
-        console.log(response.data)
-    })
-    .catch(error => {
-      console.error("Erro ao buscar dados da turma:", error);
-    });
-  }
-
-  useEffect(() =>{
-    fetchTurmas();
-  },[])
-
-  const fetchTurmaData = (selectedId) => {
-    api.admin.findByAusentes(selectedId)
+  const fetchTurmas = () => {
+    api.turma.listAll()
       .then(response => {
-        setTurmaData(response.data);
-        console.log(`dentro do select ${response.data}`)
+        setTurmas(response.data);
+        console.log('turmas');
+        console.log(response.data)
       })
       .catch(error => {
         console.error("Erro ao buscar dados da turma:", error);
       });
+  }
+
+  useEffect(() => {
+    fetchTurmas();
+  }, [])
+
+  const fetchTurmaPresentesAusentes = (selectedId) => {
+    api.aluno.presentesAusentes(selectedId)
+      .then(response => {
+        setTurmaPresentesAusentes(response.data);
+        console.log('ausentes presentes');
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.error("Erro ao buscar presentes ausentes da turma:", error);
+      });
   };
 
+  const fetchTurmaAtivosInativos = (selectedId) => {
+    api.aluno.ativosInativos(selectedId)
+      .then(response => {
+        setTurmaAtivosInativos(response.data);
+        console.log('ativos inativos');
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.error('Error ao buscar ativos inativos', error)
+      })
+  }
+
+  const fetchMediaAtivosInativos = (selectedId) => {
+    api.aluno.mediaAtivosInativos(selectedId)
+      .then(response => {
+        setMediaAlunosFrequentes(response.data.media_alunos_frequentes);
+        console.log('media frequentes');
+        console.log(response.data.media_alunos_frequentes)
+      })
+      .catch(error => {
+        console.log("Error ao buscar ativos inativos", error);
+      })
+  }
+
+  const fetchMediaPresentesAusentes = (selectedId) => {
+    api.aluno.mediaPresentesAusentes(selectedId)
+      .then(response => {
+        setMediaAlunosPresentesAusentes(response.data);
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.log("Error ao buscar ativos inativos", error);
+      })
+  }
+
+
   const handleSelectChange = (event) => {
-    const selectedId =  Number(event.target.value);
+    const selectedId = Number(event.target.value);
     const selectedTurma = turmas.find(turma => turma.Id === selectedId);
     console.log(selectedId)
     console.log(selectedTurma)
     if (selectedTurma) {
       setSelectedOption(selectedId);
       setSelectedName(selectedTurma.Nome);
-      fetchTurmaData(selectedId);
+      fetchTurmaPresentesAusentes(selectedId);
+      fetchTurmaAtivosInativos(selectedId);
+      fetchMediaAtivosInativos(selectedId);
+      fetchMediaPresentesAusentes(selectedId);
     }
 
   };
@@ -121,54 +160,104 @@ const Dashboard = () => {
     },
   };
 
-  const GraficoBarraOptions = {
-    plugins: {
-      legend: {
-        display: false,
-        labels: {
-          color: "white",
+  // const GraficoBarraOptions = {
+  //   plugins: {
+  //     datalabels: {
+  //       formatter: (value, context) => {
+  //         if (value === 100) {
+  //           return "";
+  //         } else {
+  //           return value + "%";
+  //         }
+  //       },
+  //       color: "#fff",
+  //       anchor: "end",
+  //     },
+  //     legend: {
+  //       display: false,
+  //       labels: {
+  //         color: "white",
+  //       },
+  //     },
+  //   },
+  //   scales: {
+  //     x: {
+  //       color: "red",
+  //     },
+  //     y: {
+  //       beginAtZero: true,
+  //       ticks: {
+  //         min: 0,
+  //         max: 100,
+  //         stepSize: 10,
+  //         callback: function (value, index, values) {
+  //           return value + "%";
+  //         },
+  //         color: "white",
+  //       },
+  //     },
+  //   },
+  // };
+
+ // const valoresAlunosPresentesAusentes = mediaAlunosFrequentes((value) => Math.min(value, 100));
+
+ const GraficoBarraOptions = {
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        min: 0,
+        max: 100,
+        stepSize: 10,
+        callback: function (value, index, values) {
+          return value + "%";
         },
       },
     },
-    scales: {
-      x: {
-        color: "red",
+  },
+  plugins: {
+    datalabels: {
+      formatter: (value, context) => {
+        if (value === 100) {
+          return "";
+        } else {
+          return value + "%";
+        }
       },
-      y: {
-        beginAtZero: true,
-        ticks: {
-          min: 0,
-          max: 100,
-          stepSize: 10,
-          callback: function (value, index, values) {
-            return value + "%";
-          },
-          color: "white",
-        },
-      },
+      color: "#fff",
+      anchor: "end",
     },
-  };
-
-
-const ajusteValores = valores.map((value) => Math.min(value, 100));
+    legend: {
+      display: false,
+    },
+  },
+};
 
   const GraficoCircularDataAlunosAusentes = {
-    labels: ["Presentes", "Ausentes"],
+    labels: ["Presentes", "A chegar"],
     datasets: [
       {
         label: "Alunos",
-        data: alunosAusentes,
+        data:
+          [
+            turmaPresentesAusentes?.presentes,
+            turmaPresentesAusentes?.ausentes
+          ],
         backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
       },
     ],
   };
 
   const GraficoCircularDataAlunosAtivos = {
-    labels: ["Ativos", "Inativos"],
+    labels: ["Frequentes", "Ausentes"],
     datasets: [
       {
         label: "Alunos",
-        data: [300, 100],
+        data:
+          [
+            turmaAtivosInativos?.frequente,
+            turmaAtivosInativos?.ausente
+          ],
         backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
       },
     ],
@@ -179,7 +268,7 @@ const ajusteValores = valores.map((value) => Math.min(value, 100));
     datasets: [
       {
         label: "Frequencia",
-        data: ajusteValores,
+        data: mediaAlunosFrequentes,
         backgroundColor: "white",
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
@@ -193,7 +282,7 @@ const ajusteValores = valores.map((value) => Math.min(value, 100));
     datasets: [
       {
         label: "Frequencia",
-        data: ajusteValores,
+        data: mediaAlunosPresentesAusentes?.media_alunos_ausentes,
         backgroundColor: "white",
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
@@ -225,39 +314,40 @@ const ajusteValores = valores.map((value) => Math.min(value, 100));
           <div className={styles.contentHeader}>
             <div>
               {/* <div>{data.toLocaleString()}</div> */}
-              <div>Curso selecionado:{selectedName}</div>
+              <div>Turma selecionado:{selectedName}</div>
             </div>
             <div className={styles.selectCursos}>
-            <select id="cursos" value={selectedOption} onChange={handleSelectChange}>
-                  <option value="" disabled hidden>
-                    Filtrar /cursos
+              <select id="cursos" value={selectedOption} onChange={handleSelectChange}>
+                <option value="" disabled hidden>
+                  Filtrar /turma
+                </option>
+                {turmas.map((turma) => (
+                  <option key={turma.Id} value={turma.Id}>
+                    {turma.Nome}
                   </option>
-                  {turmas.map((turma) => (
-                    <option key={turma.Id} value={turma.Id}>
-                      {turma.Nome}
-                    </option>
-                  ))}
-                </select>
+                ))}
+              </select>
             </div>
           </div>
         </section>
         <section className={styles.graficosCircularContent}>
 
-          <div className={styles.graficoDiv}>
-            {alunosAusentes.length > 0 ? (
-              <div className={styles.grafico}>
-                <GraficoCircular
-                  data={GraficoCircularDataAlunosAusentes}
-                  options={GraficoCircularOptions}
-                  className={styles.Doughnut}
-                />
-              </div>
-            ) : (
-              <h1>Carregando...</h1>
-            )}
+          <div className={styles.grafico}>
+            <GraficoCircular
+              data={GraficoCircularDataAlunosAusentes}
+              options={GraficoCircularOptions} //grafico presente ausente
+              className={styles.Doughnut}
+            />
+          </div>
+          <div className={styles.grafico}>
+            <GraficoCircular
+              data={GraficoCircularDataAlunosAtivos}
+              options={GraficoCircularOptions} //grafico ativo inativo
+              className={styles.Doughnut}
+            />
           </div>
 
-          <div className={styles.graficoDiv}>
+          {/* <div className={styles.graficoDiv}>
             {alunosAusentes.length > 0 ? (
               <div className={styles.grafico}>
                 <GraficoCircular
@@ -269,8 +359,12 @@ const ajusteValores = valores.map((value) => Math.min(value, 100));
             ) : (
               <h1>Carregando...</h1>
             )}
-          </div>
+          </div> */}
+
         </section>
+
+
+
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
             <div className={styles.contentHeaderBarTitle}>
@@ -318,7 +412,7 @@ const ajusteValores = valores.map((value) => Math.min(value, 100));
             </div>
             <div>
               <div className={styles.selectCursos}>
-              <select id="cursos-alunos-ausentes" value={selectedOption} onChange={handleSelectChange}>
+                <select id="cursos-alunos-ausentes" value={selectedOption} onChange={handleSelectChange}>
                   <option value="" disabled hidden>
                     Filtrar /cursos
                   </option>
@@ -346,5 +440,3 @@ const ajusteValores = valores.map((value) => Math.min(value, 100));
   );
 
 }
-
-export default withAuth(Dashboard,['Admin']);
