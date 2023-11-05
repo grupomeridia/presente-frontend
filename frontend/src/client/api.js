@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const httpClient = axios.create({
-   baseURL: "http://localhost:5001",
+   baseURL: "http://localhost:5000",
 });
 
 const api = {
@@ -77,7 +77,8 @@ const api = {
       
    },
    materia: {
-      create: (payload) => httpClient.post('api/materia', payload)
+      create: (payload) => httpClient.post('api/materia', payload),
+      listAll: () => httpClient.get('api/materia/listAll'),
    },
    usuario: {
       create: (payload) => httpClient.post('api/usuario', payload),

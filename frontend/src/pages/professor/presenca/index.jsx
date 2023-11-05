@@ -5,8 +5,9 @@ import Cabecalho from "@/components/Cabecalho/cabecalho";
 import React, { useState } from "react";
 
 import api from "@/client/api";
+import withAuth from "@/utils/auth";
 
-export default function Presenca() {
+const Presenca = () => {
   const [ra, setRa] = useState(null);
   const [serverResponse, setServerResponse] = useState(null);
   const [buttonClicked, setButtonClicked] = useState(false);
@@ -84,3 +85,5 @@ export default function Presenca() {
     </>
   );
 }
+
+export default withAuth(Presenca,['Professor']);

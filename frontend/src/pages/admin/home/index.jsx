@@ -11,41 +11,44 @@ import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 import api from "@/client/api";
 import { sendError } from "next/dist/server/api-utils";
 
+import withAuth from "@/utils/auth";
+
 Chart.register(ChartDataLabels);
 
-export default function Dashboard() {
+const Dashboard = () => {
+  
   const [selectedOption, setSelectedOption] = useState("");
   const [data, setData] = useState(new Date());
   const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
   const [valores, setValores] = useState([50, 150, 80, 50, 90]);
   const [periodType, setPeriodType] = useState("dia");
-
   const [idTurma, setIdTurma] = useState(1);
   const [turmas, setTurmas] = useState([]);
   const [selectedName, setSelectedName] = useState("");
-
   const [mediaAlunosFrequentes, setMediaAlunosFrequentes] = useState([]);
   const [mediaAlunosPresentesAusentes, setMediaAlunosPresentesAusentes] = useState([]);
   const [turmaPresentesAusentes, setTurmaPresentesAusentes] = useState([]);
   const [turmaAtivosInativos, setTurmaAtivosInativos] = useState([]);
+  const [turmaData, setTurmaData] = useState("");
+  const [alunosAusentes, setAlunosAusentes] = useState([]);
+  const [alunosAtivos, setAlunosAtivos] = useState([]);
+  const [mediaAlunosAtivos] = useState([]);
+  const [mediaAlunosAusentes]= useState([]);
 
+  const fetchAlunosAusentes = () => {
+    api.admin.findByAusentes(idTurma)
+      .then(response => {
+        setAlunosAusentes(response.data);
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.error("Erro ao buscar a média semanal:", error);
+      });
+  }
 
-
-  // const fetchAlunosAusentes = () => {
-  //   api.admin.findByAusentes(idTurma)
-  //     .then(response => {
-  //       setAlunosAusentes(response.data);
-  //       console.log('ausentes presentes');
-  //       console.log(response.data);
-  //     })
-  //     .catch(error => {
-  //       console.error("Erro ao buscar a média semanal:", error);
-  //     });
-  // }
-
-  // useEffect(() => {
-  //   fetchAlunosAusentes();
-  // }, [idTurma]);
+  useEffect(() => {
+    fetchAlunosAusentes();
+  }, [idTurma]);
 
 
   useEffect(() => {
@@ -55,18 +58,6 @@ export default function Dashboard() {
 
     return () => clearInterval(intervalId);
   }, []);
-
-  const fetchTurmas = () => {
-    api.turma.listAll()
-      .then(response => {
-        setTurmas(response.data);
-        console.log('turmas');
-        console.log(response.data)
-      })
-      .catch(error => {
-        console.error("Erro ao buscar dados da turma:", error);
-      });
-  }
 
   useEffect(() => {
     fetchTurmas();
@@ -122,6 +113,35 @@ export default function Dashboard() {
 
   const handleSelectChange = (event) => {
     const selectedId = Number(event.target.value);
+
+  const fetchTurmas = () =>{
+    api.turma.listAll() 
+    .then( response =>{
+        setTurmas(response.data);
+        console.log(response.data)
+    })
+    .catch(error => {
+      console.error("Erro ao buscar dados da turma:", error);
+    });
+  }
+
+  useEffect(() =>{
+    fetchTurmas();
+  },[])
+
+  const fetchTurmaData = (selectedId) => {
+    api.admin.findByAusentes(selectedId)
+      .then(response => {
+        setTurmaData(response.data);
+        console.log(`dentro do select ${response.data}`)
+      })
+      .catch(error => {
+        console.error("Erro ao buscar dados da turma:", error);
+      });
+  };
+
+  const handleSelectChange = (event) => {
+    const selectedId =  Number(event.target.value);
     const selectedTurma = turmas.find(turma => turma.Id === selectedId);
     console.log(selectedId)
     console.log(selectedTurma)
@@ -245,7 +265,44 @@ export default function Dashboard() {
             turmaPresentesAusentes?.presentes,
             turmaPresentesAusentes?.ausentes
           ],
-        backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
+
+  const GraficoBarraOptions = {
+    plugins: {
+      legend: {
+        display: false,
+        labels: {
+          color: "white",
+        },
+      },
+    },
+    scales: {
+      x: {
+        color: "red",
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          min: 0,
+          max: 100,
+          stepSize: 10,
+          callback: function (value, index, values) {
+            return value + "%";
+          },
+          color: "white",
+        },
+      },
+    },
+  };
+
+
+const ajusteValores = valores.map((value) => Math.min(value, 100));
+
+  const GraficoCircularDataAlunosAusentes = {
+    labels: ["Presentes", "Ausentes"],
+    datasets: [
+      {
+        label: "Alunos",
+        data: alunosAusentes,
       },
     ],
   };
@@ -260,7 +317,11 @@ export default function Dashboard() {
             turmaAtivosInativos?.frequente,
             turmaAtivosInativos?.ausente
           ],
-        backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
+    labels: ["Ativos", "Inativos"],
+    datasets: [
+      {
+        label: "Alunos",
+        data: [300, 100],
       },
     ],
   };
@@ -364,9 +425,6 @@ export default function Dashboard() {
           </div> */}
 
         </section>
-
-
-
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
             <div className={styles.contentHeaderBarTitle}>
@@ -414,7 +472,9 @@ export default function Dashboard() {
             </div>
             <div>
               <div className={styles.selectCursos}>
+
                 <select id="cursos-alunos-ausentes" value={selectedOption} onChange={handleSelectChange}>
+
                   <option value="" disabled hidden>
                     Filtrar /cursos
                   </option>
@@ -442,3 +502,6 @@ export default function Dashboard() {
   );
 
 }
+
+export default withAuth(Dashboard,['Admin']);
+
