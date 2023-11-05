@@ -15,6 +15,10 @@ const api = {
       presencasFaltas:(id_aluno) => httpClient.get(`/api/aluno/PresencaFalta?id_aluno=` + id_aluno),
       chamadasAbertas: (id_aluno) => httpClient.get(`/api/chamada/aluno?id=` + id_aluno),
       presenca: (body) => httpClient.post('/api/presenca/ra', body),
+      presentesAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=`+id_turma ),
+      ativosInativos: (id_turma) => httpClient.get(`/api/aluno/AtivoInativo?id_turma=`+id_turma),
+      mediaAtivosInativos: (id_turma) => httpClient.get(`/api/aluno/mediaAtivo?id_turma=`+id_turma),
+      mediaPresentesAusentes: (id_turma) => httpClient.get(`/api/aluno/mediaAusente?id_turma=`+id_turma)
    },
    admin: {
       findByAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=` + id_turma)
@@ -70,6 +74,7 @@ const api = {
       delete: (id) => httpClient.delete('/api/turma', id),
       professorNaTurma: (id_turma, id_professor) => httpClient.post('/api/turma/cadastrarProfessor', id_turma, id_professor),
       alunoNaTurma: (id_turma, id_aluno) => httpClient.post('/api/turma/cadastrarAluno', id_turma, id_aluno),
+      
    },
    materia: {
       create: (payload) => httpClient.post('api/materia', payload),
