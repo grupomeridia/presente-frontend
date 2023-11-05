@@ -34,12 +34,6 @@
     width: 40%;
 }
 
-/* .contentHeaderBar div div{
-    width: 100%;
-    display: flex;
-    justify-content: space-evenly;
-} */
-
 .contentHeaderBar div div button{
     width: 100px;
     height: 40px;
@@ -57,7 +51,13 @@
     height: 20rem;
     background-color: #d9d9d92e;
     border-radius: 15px;
-    
+
+}
+
+.graficoDiv{
+    height: 20rem;
+    display: flex;
+    align-items: center;
 }
 
 .graficoFundo{
@@ -85,6 +85,5 @@
 .graficoBar{
     width: 80%;
     height: 30%;
-    /* margin-left: 80px; */
     margin-top: 80px;
 }
