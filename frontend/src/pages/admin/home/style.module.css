@@ -47,11 +47,17 @@
 }
 
 .grafico{
+    width: 80%;
+}
+
+.a{
     width: 35%;
     height: 20rem;
     background-color: #d9d9d92e;
     border-radius: 15px;
     display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .graficoDiv{
@@ -88,3 +94,5 @@
     height: 30%;
     margin-top: 80px;
 }
+
+

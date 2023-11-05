@@ -17,10 +17,8 @@ export default function Dashboard() {
   const [selectedOption, setSelectedOption] = useState("");
   const [data, setData] = useState(new Date());
   const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
-  const [valores, setValores] = useState([50, 150, 80, 50, 90]);
   const [periodType, setPeriodType] = useState("dia");
 
-  const [idTurma, setIdTurma] = useState(1);
   const [turmas, setTurmas] = useState([]);
   const [selectedName, setSelectedName] = useState("");
 
@@ -201,39 +199,39 @@ export default function Dashboard() {
   //   },
   // };
 
- // const valoresAlunosPresentesAusentes = mediaAlunosFrequentes((value) => Math.min(value, 100));
+  // const valoresAlunosPresentesAusentes = mediaAlunosFrequentes((value) => Math.min(value, 100));
 
- const GraficoBarraOptions = {
-  scales: {
-    y: {
-      beginAtZero: true,
-      ticks: {
-        min: 0,
-        max: 100,
-        stepSize: 10,
-        callback: function (value, index, values) {
-          return value + "%";
+  const GraficoBarraOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          min: 0,
+          max: 100,
+          stepSize: 10,
+          callback: function (value, index, values) {
+            return value + "%";
+          },
         },
       },
     },
-  },
-  plugins: {
-    datalabels: {
-      formatter: (value, context) => {
-        if (value === 100) {
-          return "";
-        } else {
-          return value + "%";
-        }
+    plugins: {
+      datalabels: {
+        formatter: (value, context) => {
+          if (value === 100) {
+            return "";
+          } else {
+            return value + "%";
+          }
+        },
+        color: "#fff",
+        anchor: "end",
       },
-      color: "#fff",
-      anchor: "end",
+      legend: {
+        display: false,
+      },
     },
-    legend: {
-      display: false,
-    },
-  },
-};
+  };
 
   const GraficoCircularDataAlunosAusentes = {
     labels: ["Presentes", "A chegar"],
@@ -333,22 +331,24 @@ export default function Dashboard() {
           </div>
         </section>
         <section className={styles.graficosCircularContent}>
-
-          <div className={styles.grafico}>
-            <GraficoCircular
-              data={GraficoCircularDataAlunosAusentes}
-              options={GraficoCircularOptions} //grafico presente ausente
-              className={styles.Doughnut}
-            />
+          <div className={styles.a}>
+            <div className={styles.grafico}>
+              <GraficoCircular
+                data={GraficoCircularDataAlunosAusentes}
+                options={GraficoCircularOptions} //grafico presente ausente
+                className={styles.Doughnut}
+              />
+            </div>
           </div>
-          <div className={styles.grafico}>
-            <GraficoCircular
-              data={GraficoCircularDataAlunosAtivos}
-              options={GraficoCircularOptions} //grafico ativo inativo
-              className={styles.Doughnut}
-            />
+          <div className={styles.a}>
+            <div className={styles.grafico}>
+              <GraficoCircular
+                data={GraficoCircularDataAlunosAtivos}
+                options={GraficoCircularOptions} //grafico ativo inativo
+                className={styles.Doughnut}
+              />
+            </div>
           </div>
-
           {/* <div className={styles.graficoDiv}>
             {alunosAusentes.length > 0 ? (
               <div className={styles.grafico}>

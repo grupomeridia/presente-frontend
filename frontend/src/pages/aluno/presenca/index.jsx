@@ -8,19 +8,6 @@ import { BsFillCheckCircleFill } from 'react-icons/bs';
 
 
 function presencaAluno() {
-  // const [professor, setProfessor] = useState("");
-  // const [curso, setCusco] = useState("");
-  // const [projeto, setProjeto] = useState("");
-  // const [presencas, setPresencas] = useState("");
-  // const [alunos, setAlunos] = useState("");
-  // const [ativo, setAtivo] = useState(false);
-  // const [alunoRa, setAlunoRa] = useState("");
-  // const [turma, setTurma] = useState("");
-  // const [chamada, setChamada] = useState("");
-  // const [tipoPresenca, setTipoPresenca] = useState("");
-  // const [horario, setHorario] = useState("");
-  // const [isSuccess, setIsSuccess] = useState(true); 
-
   const [aluno, setALuno] = useState(1);
   const [chamadasAbertas, setChamadasAbertas] = useState([]);
   const [ra, setRa] = useState(123456);
@@ -28,7 +15,7 @@ function presencaAluno() {
 
   historico.reverse();
 
-  useEffect(() => {
+  const fetchChamadas = () => {
     api.aluno
       .chamadasAbertas(aluno)
       .then((response) => {
@@ -38,7 +25,11 @@ function presencaAluno() {
       .catch((error) => {
         console.error("Erro ao buscar as chamadas abertas:", error);
       });
-  }, []);
+  }
+
+  useEffect(()=>{
+    fetchChamadas();
+  },[])
 
   const fazerChamada = () => {
     const body = {
@@ -50,6 +41,7 @@ function presencaAluno() {
       .then((response) => {
         console.log("Chamada marcada com sucesso:", response.data);
         setServerResponse(response.data);
+        fazerChamada();
       })
       .catch((error) => {
         console.error("Erro:", error);
@@ -59,6 +51,8 @@ function presencaAluno() {
         }
       });
   };
+
+
 
   const fetchPresencasAluno = () => {
     api.aluno.findChamadaByAluno(aluno)
