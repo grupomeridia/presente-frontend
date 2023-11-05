@@ -1,52 +1,154 @@
-.form {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: "Inter";
-  color: aliceblue;
+.page_content {
+    position: relative;
+    left: 220px;
+    width: calc(100% - 220px);
+    min-height: 100vh;
+    padding: 30px;
+    color: #171616;
+    background: #f0f1f6;
 }
 
-
-.form_center{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.inner_content {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 }
 
-.titulo{
-  margin-left: 100px;
+.chamada {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 75%;
+    height: 40vh;
+    background-color: #203867;
+    margin-bottom: 2.5rem;
+    border-radius: 20px;
 }
 
-.input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  margin-bottom: 20px;
+.chamada div {
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
 }
 
-.botao{
-  padding: 10px 60px 10px 60px;
-  margin-bottom: 30px;
+.historico {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 75%;
+    height: 40vh;
+    background-color: #203867;
+    border-radius: 20px;
 }
 
-
-.fundoContainer {
-  position: relative;
+.historico div {
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
 }
 
-.serverResponse {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 10;
-  font-size: 16px;
-  color: aliceblue;
-  padding: 5px;
-  border-radius: 5px;
+.botao {
+    font-size: medium;
+    color: #ffff;
+    background-color: #203867;
+    height: 30px;
+    width: 60%;
+    border-radius: 50px;
 }
 
+.botaoRealizaChamada {
+    width: 70%;
+    height: 2.3rem;
+    border-radius: 15px;
+    background-color: #203867;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
 
+.botaoRealizaChamada:hover {
+    background-color: #556482;
+}
+
+.tabela {
+    width: 90%;
+    border-radius: 0px;
+    border-collapse: collapse;
+    background-color: transparent;
+    text-align: center;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+   
+}
+
+.tabela tr{
+    height: 3rem;
+    background-color: #203867;
+    color: white; 
+}
+
+.tabela tr th {
+    color: white;
+}
+
+.tabela thead{
+    background-color: transparent;
+    height: 4rem;
+    color: #ffff;
+}
+
+.tabela tr {
+    background-color: #b8b8b8;
+    color: black;  
+}
+
+.tabela tr td {
+    color: black;
+}
+
+.tableHeader .row {
+    background-color: #203867;
+    color: white;
+}
+
+.tableHeader .row .cell {
+    color: white;
+    border-right: 1px solid white; 
+}
+
+.tableHeader .row .cell:last-child {
+    border-right: none;
+}
+
+.tableBody .row {
+    background-color: #b8b8b8;
+    color: black;
+}
+
+.tableBody .row .cell {
+    color: black;
+}
+
+.tableBody .row .cell:last-child {
+    border-right: none;
+}
+
+.row {
+    background-color: #203867;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.cell, .headerCell {
+    border: none;
+    padding: 10px;
+    flex: 1;
+}

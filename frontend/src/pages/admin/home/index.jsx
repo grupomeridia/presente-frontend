@@ -9,11 +9,13 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
 import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 import api from "@/client/api";
-import { sendError } from "next/dist/server/api-utils";
+
+import withAuth from "@/utils/auth";
 
 Chart.register(ChartDataLabels);
 
-export default function Dashboard() {
+const Dashboard = () => {
+  
   const [selectedOption, setSelectedOption] = useState("");
   const [data, setData] = useState(new Date());
   const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
@@ -146,6 +148,7 @@ export default function Dashboard() {
       },
     },
   };
+
 
 const ajusteValores = valores.map((value) => Math.min(value, 100));
 
@@ -343,3 +346,5 @@ const ajusteValores = valores.map((value) => Math.min(value, 100));
   );
 
 }
+
+export default withAuth(Dashboard,['Admin']);

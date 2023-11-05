@@ -4,7 +4,7 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
-
+require('dotenv').config();
 
 module.exports = {
   webpack: (config, { isServer }) => {
