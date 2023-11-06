@@ -288,7 +288,7 @@ useEffect(() => {
         return (
           <div className={styles.form_center}>
             <div className={styles.form}>
-              <h2 className={styles.titulo}>Cadastro de Aluno</h2>
+              <h2 className={styles.titulo}>Cadastro de Usuario</h2>
 
               <select
                 className={styles.input}
@@ -531,4 +531,4 @@ useEffect(() => {
   );
 }
 
-export default withAuth(Cadastrar,['Admin']);
+export default Cadastrar;
