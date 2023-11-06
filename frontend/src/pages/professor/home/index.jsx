@@ -223,7 +223,7 @@ useEffect(() => {
                 ))}
               </select> */}
 
-              <label>Insira a data de abertura:</label>
+              <label className={styles.label}>Insira a data de abertura:</label>
               <input
                 className={styles.input}
                 type="datetime-local"
@@ -231,7 +231,7 @@ useEffect(() => {
                 onChange={(e) => setDataAbertura(e.target.value)}
               />
 
-              <label>Insira a data de encerramento:</label>
+              <label className={styles.label}>Insira a data de encerramento:</label>
               <input
                 className={styles.input}
                 type="datetime-local"

@@ -27,18 +27,30 @@ const Navbar = () => {
     if (user) {
       console.log("User:", user);
       setUserType(user.Cargo);
+      setUserCurso(user.Curso);
     }
   }, [user]);
 
-  useEffect(() => {
-    if (user && user.Curso) { // Verifica se `user` e `user.Curso` estão definidos
-      console.log("User:", user);
-      const updatedCourse = user.Curso.replace(/_/g, ' ');
-      setUserType(updatedCourse); // Armazena o curso com espaços
-    } else if (user) { // Se `user` está definido mas não tem `Curso`, talvez só precise do `Cargo`
-      setUserType(user.Cargo);
-    }
-  }, [user]);
+ useEffect(() => {
+  if (user && user.Curso) { // Verifica se `user` e `user.Curso` estão definidos
+    console.log("User:", user);
+    const updatedCourse = user.Curso.replace(/_/g, ' ');
+    setUserCurso(updatedCourse);
+    setUserType(user.Cargo)// Armazena o curso com espaços
+  } else if (user) { // Se `user` está definido mas não tem `Curso`, talvez só precise do `Cargo`
+    setUserType(user.Cargo);
+    console.log(userType)
+  }
+}, [user]);
+
+// useEffect(() => {
+//   if (user) {
+//     console.log("User:", user);
+//     const updatedCourse = user.Curso.replace(/_/g, ' ');
+//     setUserCurso(updatedCourse);
+//     console.log(updatedCourse);
+//   }
+// }, [user]);
 
   useEffect(() => {
     console.log("Pathname:", router.pathname, "User Type:", userType);
@@ -77,11 +89,11 @@ const Navbar = () => {
       ];
     }
 
-    if (userType === "Admin") {
+    if (userType === "Secretaria") {
       return [
-        { name: "Dashboard", icon: faTachometerAlt, link: "/admin/home" },
-        { name: "Chamada", icon: faUserCheck, link: "/admin/chamada" },
-        { name: "Cadastrar", icon: faUserPlus, link: "/admin/cadastrar" },
+        { name: "Dashboard", icon: faTachometerAlt, link: "/secretaria/home" },
+        { name: "Chamada", icon: faUserCheck, link: "/secretaria/chamada" },
+        { name: "Cadastrar", icon: faUserPlus, link: "/secretaria/cadastrar" },
         {
           name: "Presença",
           icon: faChalkboardTeacher,
@@ -111,7 +123,7 @@ const Navbar = () => {
               {user
                 ? user.Cargo == "Professor" || user.Cargo == "Secretaria"
                   ? user.Cargo
-                  : userType
+                  : userCurso
                 : ""}
             </span>
           </div>

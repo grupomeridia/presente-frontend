@@ -40,9 +40,10 @@ const Presenca = () => {
     } else {
       const successIcon = "✅";
       const errorIcon = "❌";
-      const responseMessage = serverResponse || "";
-
-      if (serverResponse === "presença registrada") {
+  
+      const responseMessage = serverResponse.mensagem ? serverResponse.mensagem : serverResponse;
+  
+      if (responseMessage === "presenca registrada") {
         return (
           <div>
             {successIcon} {responseMessage}

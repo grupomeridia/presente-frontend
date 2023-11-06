@@ -1,6 +1,7 @@
 .content {
     display: flex;
     justify-content: space-evenly;
+    font-family: 'Lato';
 }
 
 .selectCursos select {
