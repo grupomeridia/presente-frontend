@@ -10,39 +10,25 @@ import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
 import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 import api from "@/client/api";
 import { sendError } from "next/dist/server/api-utils";
+import withAuth from "@/utils/auth";
 
 Chart.register(ChartDataLabels);
 
-export default function Dashboard() {
+const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [data, setData] = useState(new Date());
   const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
   const [barThick, setBarThick] = useState(100);
   const [periodType, setPeriodType] = useState("dia");
+
   const [turmas, setTurmas] = useState([]);
   const [selectedName, setSelectedName] = useState("");
+
   const [mediaAlunosFrequentes, setMediaAlunosFrequentes] = useState([]);
   const [mediaAlunosPresentesAusentes, setMediaAlunosPresentesAusentes] = useState([]);
   const [turmaPresentesAusentes, setTurmaPresentesAusentes] = useState([]);
   const [turmaAtivosInativos, setTurmaAtivosInativos] = useState([]);
-
-
-  // const fetchAlunosAusentes = () => {
-  //   api.admin.findByAusentes(idTurma)
-  //     .then(response => {
-  //       setAlunosAusentes(response.data);
-  //       console.log('ausentes presentes');
-  //       console.log(response.data);
-  //     })
-  //     .catch(error => {
-  //       console.error("Erro ao buscar a média semanal:", error);
-  //     });
-  // }
-
-  // useEffect(() => {
-  //   fetchAlunosAusentes();
-  // }, [idTurma]);
-
+  
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -113,7 +99,7 @@ export default function Dashboard() {
       .catch(error => {
         console.log("Error ao buscar ativos inativos", error);
       })
-
+  };
 
   const handleSelectChange = (event) => {
     const selectedId = Number(event.target.value);
@@ -131,35 +117,80 @@ export default function Dashboard() {
 
   };
 
-  const GraficoCircularOptions = {
+  const [labelControl, setLabelControl] = useState(true);
+  const [dataForTheChart, setDataForTheChart] = useState([]);
+
+
+  let GraficoCircularOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      datalabels: {
-        formatter: (value, context) => {
-          let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
-          let percentage = ((value * 100) / sum).toFixed(2) + "%";
-          if(percentage !== NaN){
-            return "";
-          }else{
-            return percentage ;
-          }
+        datalabels: {
+            formatter: (value, context) => {
+                let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
+                let percentage = ((value * 100) / sum);
+                
+                if (isNaN(percentage)) {
+                    setLabelControl(false);
+                    return "Selecione a Turma";
+                } else {
+                    setLabelControl(true);
+                    return percentage.toFixed(2) + "%";
+                }
+            },
+            color: "#fff",
+            anchor: "center",
         },
-        color: "#fff",
-        anchor: "center",
-      },
-      legend: {
-        labels: {
-          color: "white",
+        legend: {
+            labels: {
+                color: "white",
+            },
+            position: "right",
+            display:labelControl
         },
-        position: "right"
-      },
-      title: {
-        display: true,
-        text: "",
-      },
+        title: {
+            display: false,
+            text: "", 
+        },
     },
-  };
+};
+
+useEffect(() => {
+    setLabelControl(true);
+}, [dataForTheChart]);
+
+  // const GraficoCircularOptions = {
+  //   responsive: true,
+  //   maintainAspectRatio: false,
+  //   plugins: {
+  //     datalabels: {
+  //       formatter: (value, context) => {
+  //         let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
+  //         let percentage = ((value * 100) / sum);
+  //         console.log(percentage)
+  //         if (isNaN(percentage)) {
+  //           return "Selecione a Turma";
+  //           setLabelControl(false)
+  //         } else {
+  //           return percentage.toFixed(2) + "%";
+  //         }
+
+  //       },
+  //       color: "#fff",
+  //       anchor: "center",
+  //     },
+  //     legend: {
+  //       labels: {
+  //         color: "white",
+  //       },
+  //       position: "right"
+  //     },
+  //     title: {
+  //       display: labelControl,
+  //       text: "",
+  //     },
+  //   },
+  // };
 
   const GraficoBarraOptions = {
     scales: {
@@ -196,7 +227,7 @@ export default function Dashboard() {
             turmaPresentesAusentes?.presentes,
             turmaPresentesAusentes?.ausentes
           ],
-
+        //backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
         backgroundColor: ["#748cab", "#1d2d44"],
       },
     ],
@@ -212,8 +243,8 @@ export default function Dashboard() {
             turmaAtivosInativos?.frequente,
             turmaAtivosInativos?.ausente
           ],
-       // backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
-       backgroundColor: ["#748cab", "#1d2d44"],
+        // backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
+        backgroundColor: ["#748cab", "#1d2d44"],
       },
     ],
   };
@@ -291,19 +322,20 @@ export default function Dashboard() {
         <section className={styles.graficosCircularContent}>
 
           <div className={styles.a}>
-
-            <div className={styles.grafico}>
-              <GraficoCircular
-                data={GraficoCircularDataAlunosAusentes}
-                options={GraficoCircularOptions} //grafico ativo inativo
-                className={styles.Doughnut}
-              />
-            </div>
-
+            {turmaPresentesAusentes ? (
+              <div className={styles.grafico}>
+                <GraficoCircular
+                  data={GraficoCircularDataAlunosAusentes}
+                  options={GraficoCircularOptions} //grafico ativo inativo
+                  className={styles.Doughnut}
+                />
+              </div>
+            ) : (
+              <h1>N</h1>
+            )}
           </div>
 
           <div className={styles.a}>
-
             {turmaPresentesAusentes ? (
               <div className={styles.grafico}>
                 <GraficoCircular
@@ -323,11 +355,14 @@ export default function Dashboard() {
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
             <div className={styles.contentHeaderBarTitle}>
-              <p>Media de alunos ativos</p>
-              <div>
+              <p>Media de alunos presentes</p>
+              {/* <div>
                 <button type="button" onClick={() => handlePeriodButtonClick("dia")}>Dia</button>
                 <button type="button" onClick={() => handlePeriodButtonClick("semana")}>Semana</button>
                 <button type="button" onClick={() => handlePeriodButtonClick("mes")}>Mês</button>
+              </div> */}
+              <div>
+                <div>Turma selecionado:{selectedName}</div>
               </div>
             </div>
             <div>
@@ -359,12 +394,14 @@ export default function Dashboard() {
           <div className={styles.contentHeaderBar}>
             <div className={styles.contentHeaderBarTitle}>
               <p>Media de alunos ausentes</p>
-              <div>
+              {/* <div>
                 <button type="button" onClick={() => handlePeriodButtonClick("dia")}>Dia</button>
                 <button type="button" onClick={() => handlePeriodButtonClick("semana")}>Semana</button>
                 <button type="button" onClick={() => handlePeriodButtonClick("mes")}>Mês</button>
+              </div> */}
+              <div>
+                <div>Turma selecionado:{selectedName}</div>
               </div>
-              
             </div>
             <div>
               <div className={styles.selectCursos}>
@@ -396,3 +433,5 @@ export default function Dashboard() {
   );
 
 }
+
+export default withAuth(Dashboard, ['Secretaria']);
