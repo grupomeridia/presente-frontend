@@ -17,16 +17,14 @@ export default function Dashboard() {
   const [selectedOption, setSelectedOption] = useState("");
   const [data, setData] = useState(new Date());
   const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
+  const [barThick, setBarThick] = useState(100);
   const [periodType, setPeriodType] = useState("dia");
-
   const [turmas, setTurmas] = useState([]);
   const [selectedName, setSelectedName] = useState("");
-
   const [mediaAlunosFrequentes, setMediaAlunosFrequentes] = useState([]);
   const [mediaAlunosPresentesAusentes, setMediaAlunosPresentesAusentes] = useState([]);
   const [turmaPresentesAusentes, setTurmaPresentesAusentes] = useState([]);
   const [turmaAtivosInativos, setTurmaAtivosInativos] = useState([]);
-
 
 
   // const fetchAlunosAusentes = () => {
@@ -68,7 +66,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchTurmas();
-  }, [])
+  }, []);
 
   const fetchTurmaPresentesAusentes = (selectedId) => {
     api.aluno.presentesAusentes(selectedId)
@@ -92,30 +90,29 @@ export default function Dashboard() {
       .catch(error => {
         console.error('Error ao buscar ativos inativos', error)
       })
-  }
+  };
 
   const fetchMediaAtivosInativos = (selectedId) => {
     api.aluno.mediaAtivosInativos(selectedId)
       .then(response => {
         setMediaAlunosFrequentes(response.data.media_alunos_frequentes);
         console.log('media frequentes');
-        console.log(response.data.media_alunos_frequentes)
+        console.log(response.data.media_alunos_frequentes);
       })
       .catch(error => {
         console.log("Error ao buscar ativos inativos", error);
       })
-  }
+  };
 
   const fetchMediaPresentesAusentes = (selectedId) => {
     api.aluno.mediaPresentesAusentes(selectedId)
       .then(response => {
-        setMediaAlunosPresentesAusentes(response.data);
+        setMediaAlunosPresentesAusentes(response.data.media_alunos_ausentes);
         console.log(response.data);
       })
       .catch(error => {
         console.log("Error ao buscar ativos inativos", error);
       })
-  }
 
 
   const handleSelectChange = (event) => {
@@ -142,7 +139,11 @@ export default function Dashboard() {
         formatter: (value, context) => {
           let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
           let percentage = ((value * 100) / sum).toFixed(2) + "%";
-          return percentage;
+          if(percentage !== NaN){
+            return "";
+          }else{
+            return percentage ;
+          }
         },
         color: "#fff",
         anchor: "center",
@@ -151,7 +152,7 @@ export default function Dashboard() {
         labels: {
           color: "white",
         },
-        position: "right",
+        position: "right"
       },
       title: {
         display: true,
@@ -160,78 +161,30 @@ export default function Dashboard() {
     },
   };
 
-  // const GraficoBarraOptions = {
-  //   plugins: {
-  //     datalabels: {
-  //       formatter: (value, context) => {
-  //         if (value === 100) {
-  //           return "";
-  //         } else {
-  //           return value + "%";
-  //         }
-  //       },
-  //       color: "#fff",
-  //       anchor: "end",
-  //     },
-  //     legend: {
-  //       display: false,
-  //       labels: {
-  //         color: "white",
-  //       },
-  //     },
-  //   },
-  //   scales: {
-  //     x: {
-  //       color: "red",
-  //     },
-  //     y: {
-  //       beginAtZero: true,
-  //       ticks: {
-  //         min: 0,
-  //         max: 100,
-  //         stepSize: 10,
-  //         callback: function (value, index, values) {
-  //           return value + "%";
-  //         },
-  //         color: "white",
-  //       },
-  //     },
-  //   },
-  // };
-
- // const valoresAlunosPresentesAusentes = mediaAlunosFrequentes((value) => Math.min(value, 100));
-
- const GraficoBarraOptions = {
-  scales: {
-    y: {
-      beginAtZero: true,
-      ticks: {
+  const GraficoBarraOptions = {
+    scales: {
+      y: {
         min: 0,
         max: 100,
-        stepSize: 10,
-        callback: function (value, index, values) {
-          return value + "%";
+      },
+    },
+    plugins: {
+      datalabels: {
+        formatter: (value, context) => {
+          if (value === 100) {
+            return "";
+          } else {
+            return value + "%";
+          }
         },
+        color: "#fff",
+        anchor: "end",
+      },
+      legend: {
+        display: false,
       },
     },
-  },
-  plugins: {
-    datalabels: {
-      formatter: (value, context) => {
-        if (value === 100) {
-          return "";
-        } else {
-          return value + "%";
-        }
-      },
-      color: "#fff",
-      anchor: "end",
-    },
-    legend: {
-      display: false,
-    },
-  },
-};
+  };
 
   const GraficoCircularDataAlunosAusentes = {
     labels: ["Presentes", "A chegar"],
@@ -243,7 +196,8 @@ export default function Dashboard() {
             turmaPresentesAusentes?.presentes,
             turmaPresentesAusentes?.ausentes
           ],
-        backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
+
+        backgroundColor: ["#748cab", "#1d2d44"],
       },
     ],
   };
@@ -258,7 +212,8 @@ export default function Dashboard() {
             turmaAtivosInativos?.frequente,
             turmaAtivosInativos?.ausente
           ],
-        backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
+       // backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
+       backgroundColor: ["#748cab", "#1d2d44"],
       },
     ],
   };
@@ -268,11 +223,11 @@ export default function Dashboard() {
     datasets: [
       {
         label: "Frequencia",
-        data: mediaAlunosFrequentes,
-        backgroundColor: "white",
-        borderColor: "rgba(75, 192, 192, 1)",
+        data: [mediaAlunosFrequentes],
+        backgroundColor: "rgba(201, 203, 207, 0.2)",
+        borderColor: "rgb(201, 203, 207)",
         borderWidth: 1,
-        barThickness: 100,
+        barThickness: barThick,
       },
     ],
   };
@@ -282,11 +237,11 @@ export default function Dashboard() {
     datasets: [
       {
         label: "Frequencia",
-        data: mediaAlunosPresentesAusentes?.media_alunos_ausentes,
-        backgroundColor: "white",
-        borderColor: "rgba(75, 192, 192, 1)",
+        data: [mediaAlunosPresentesAusentes],
+        backgroundColor: "rgba(201, 203, 207, 0.2)",
+        borderColor: "rgb(201, 203, 207)",
         borderWidth: 1,
-        barThickness: 100,
+        barThickness: barThick,
       },
     ],
   };
@@ -295,12 +250,15 @@ export default function Dashboard() {
     setPeriodType(period);
     if (period === "dia") {
       setLabelGraf(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
+      setBarThick(100);
       // Atualize os dados do gráfico para o período "dia"
     } else if (period === "semana") {
       setLabelGraf(["1", "2", "3", "4", "5"]);
+      setBarThick(100);
       // Atualize os dados do gráfico para o período "semana"
     } else if (period === "mes") {
       setLabelGraf(["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]);
+      setBarThick(55);
       // Atualize os dados do gráfico para o período "mês"
     }
   };
@@ -332,38 +290,35 @@ export default function Dashboard() {
         </section>
         <section className={styles.graficosCircularContent}>
 
-          <div className={styles.grafico}>
-            <GraficoCircular
-              data={GraficoCircularDataAlunosAusentes}
-              options={GraficoCircularOptions} //grafico presente ausente
-              className={styles.Doughnut}
-            />
-          </div>
-          <div className={styles.grafico}>
-            <GraficoCircular
-              data={GraficoCircularDataAlunosAtivos}
-              options={GraficoCircularOptions} //grafico ativo inativo
-              className={styles.Doughnut}
-            />
+          <div className={styles.a}>
+
+            <div className={styles.grafico}>
+              <GraficoCircular
+                data={GraficoCircularDataAlunosAusentes}
+                options={GraficoCircularOptions} //grafico ativo inativo
+                className={styles.Doughnut}
+              />
+            </div>
+
           </div>
 
-          {/* <div className={styles.graficoDiv}>
-            {alunosAusentes.length > 0 ? (
+          <div className={styles.a}>
+
+            {turmaPresentesAusentes ? (
               <div className={styles.grafico}>
                 <GraficoCircular
                   data={GraficoCircularDataAlunosAtivos}
-                  options={GraficoCircularOptions}
+                  options={GraficoCircularOptions} //grafico ativo inativo
                   className={styles.Doughnut}
                 />
               </div>
             ) : (
-              <h1>Carregando...</h1>
+              <h1>N</h1>
             )}
-          </div> */}
+
+          </div>
 
         </section>
-
-
 
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
@@ -409,6 +364,7 @@ export default function Dashboard() {
                 <button type="button" onClick={() => handlePeriodButtonClick("semana")}>Semana</button>
                 <button type="button" onClick={() => handlePeriodButtonClick("mes")}>Mês</button>
               </div>
+              
             </div>
             <div>
               <div className={styles.selectCursos}>
