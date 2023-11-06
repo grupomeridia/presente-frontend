@@ -18,13 +18,24 @@ import { useUser } from "@/contexts/UserContext";
 const Navbar = () => {
   const [activeItem, setActiveItem] = useState("");
   const { user } = useUser();
-  const [userType, setUserType] = useState(); 
+  const [userType, setUserType] = useState();
+  const [userCurso,setUserCurso] = useState();
   const [userImage, setUserImage] = useState(""); 
   const router = useRouter();
 
   useEffect(() => {
     if (user) {
       console.log("User:", user);
+      setUserType(user.Cargo);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && user.Curso) { // Verifica se `user` e `user.Curso` estão definidos
+      console.log("User:", user);
+      const updatedCourse = user.Curso.replace(/_/g, ' ');
+      setUserType(updatedCourse); // Armazena o curso com espaços
+    } else if (user) { // Se `user` está definido mas não tem `Curso`, talvez só precise do `Cargo`
       setUserType(user.Cargo);
     }
   }, [user]);
@@ -42,7 +53,7 @@ const Navbar = () => {
   }, [router.pathname, user]);
 
   useEffect(() => {
-    const fetchedImage = ""; //adiciona aqui o caminho pra pegar a imagen no backend
+    const fetchedImage = "";
     setUserImage(fetchedImage);
   }, []);
 
@@ -68,8 +79,8 @@ const Navbar = () => {
 
     if (userType === "Admin") {
       return [
-        { name: "Dashboard", icon: faTachometerAlt, link: "/home" },
-        { name: "Chamada", icon: faUserCheck, link: "/chamada" },
+        { name: "Dashboard", icon: faTachometerAlt, link: "/admin/home" },
+        { name: "Chamada", icon: faUserCheck, link: "/admin/chamada" },
         { name: "Cadastrar", icon: faUserPlus, link: "/admin/cadastrar" },
         {
           name: "Presença",
@@ -100,7 +111,7 @@ const Navbar = () => {
               {user
                 ? user.Cargo == "Professor" || user.Cargo == "Secretaria"
                   ? user.Cargo
-                  : user.Curso
+                  : userType
                 : ""}
             </span>
           </div>
