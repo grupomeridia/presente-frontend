@@ -116,37 +116,81 @@ const Dashboard = () => {
 
   };
 
-  const GraficoCircularOptions = {
+
+  const [labelControl, setLabelControl] = useState(true);
+  const [dataForTheChart, setDataForTheChart] = useState([]);
+
+
+  let GraficoCircularOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      datalabels: {
-        formatter: (value, context) => {
-          let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
-          let percentage = ((value * 100) / sum);
-          console.log(percentage)
-          if (isNaN(percentage)) {
-            return "";
-          } else {
-            return percentage.toFixed(2) + "%";
-          }
-
+        datalabels: {
+            formatter: (value, context) => {
+                let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
+                let percentage = ((value * 100) / sum);
+                
+                if (isNaN(percentage)) {
+                    setLabelControl(false);
+                    return "Selecione a Turma";
+                } else {
+                    setLabelControl(true);
+                    return percentage.toFixed(2) + "%";
+                }
+            },
+            color: "#fff",
+            anchor: "center",
         },
-        color: "#fff",
-        anchor: "center",
-      },
-      legend: {
-        labels: {
-          color: "white",
+        legend: {
+            labels: {
+                color: "white",
+            },
+            position: "right",
+            display:labelControl
         },
-        position: "right"
-      },
-      title: {
-        display: true,
-        text: "",
-      },
+        title: {
+            display: false,
+            text: "", 
+        },
     },
-  };
+};
+
+useEffect(() => {
+    setLabelControl(true);
+}, [dataForTheChart]);
+
+  // const GraficoCircularOptions = {
+  //   responsive: true,
+  //   maintainAspectRatio: false,
+  //   plugins: {
+  //     datalabels: {
+  //       formatter: (value, context) => {
+  //         let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
+  //         let percentage = ((value * 100) / sum);
+  //         console.log(percentage)
+  //         if (isNaN(percentage)) {
+  //           return "Selecione a Turma";
+  //           setLabelControl(false)
+  //         } else {
+  //           return percentage.toFixed(2) + "%";
+  //         }
+
+  //       },
+  //       color: "#fff",
+  //       anchor: "center",
+  //     },
+  //     legend: {
+  //       labels: {
+  //         color: "white",
+  //       },
+  //       position: "right"
+  //     },
+  //     title: {
+  //       display: labelControl,
+  //       text: "",
+  //     },
+  //   },
+  // };
 
   const GraficoBarraOptions = {
     scales: {
@@ -278,19 +322,20 @@ const Dashboard = () => {
         <section className={styles.graficosCircularContent}>
 
           <div className={styles.a}>
-
-            <div className={styles.grafico}>
-              <GraficoCircular
-                data={GraficoCircularDataAlunosAusentes}
-                options={GraficoCircularOptions} //grafico ativo inativo
-                className={styles.Doughnut}
-              />
-            </div>
-
+            {turmaPresentesAusentes ? (
+              <div className={styles.grafico}>
+                <GraficoCircular
+                  data={GraficoCircularDataAlunosAusentes}
+                  options={GraficoCircularOptions} //grafico ativo inativo
+                  className={styles.Doughnut}
+                />
+              </div>
+            ) : (
+              <h1>N</h1>
+            )}
           </div>
 
           <div className={styles.a}>
-
             {turmaPresentesAusentes ? (
               <div className={styles.grafico}>
                 <GraficoCircular
@@ -390,3 +435,4 @@ const Dashboard = () => {
 }
 
 export default withAuth(Dashboard,['Secretaria']);
+
