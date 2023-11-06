@@ -19,14 +19,30 @@ export default function Dashboard() {
   const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
   const [barThick, setBarThick] = useState(100);
   const [periodType, setPeriodType] = useState("dia");
-
   const [turmas, setTurmas] = useState([]);
   const [selectedName, setSelectedName] = useState("");
-
   const [mediaAlunosFrequentes, setMediaAlunosFrequentes] = useState([]);
   const [mediaAlunosPresentesAusentes, setMediaAlunosPresentesAusentes] = useState([]);
   const [turmaPresentesAusentes, setTurmaPresentesAusentes] = useState([]);
   const [turmaAtivosInativos, setTurmaAtivosInativos] = useState([]);
+
+
+  // const fetchAlunosAusentes = () => {
+  //   api.admin.findByAusentes(idTurma)
+  //     .then(response => {
+  //       setAlunosAusentes(response.data);
+  //       console.log('ausentes presentes');
+  //       console.log(response.data);
+  //     })
+  //     .catch(error => {
+  //       console.error("Erro ao buscar a média semanal:", error);
+  //     });
+  // }
+
+  // useEffect(() => {
+  //   fetchAlunosAusentes();
+  // }, [idTurma]);
+
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -97,7 +113,7 @@ export default function Dashboard() {
       .catch(error => {
         console.log("Error ao buscar ativos inativos", error);
       })
-  };
+
 
   const handleSelectChange = (event) => {
     const selectedId = Number(event.target.value);
@@ -180,7 +196,7 @@ export default function Dashboard() {
             turmaPresentesAusentes?.presentes,
             turmaPresentesAusentes?.ausentes
           ],
-        //backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
+
         backgroundColor: ["#748cab", "#1d2d44"],
       },
     ],

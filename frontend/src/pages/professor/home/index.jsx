@@ -32,6 +32,7 @@ const Chamada = () => {
     }
 }, [user]);
 
+
 useEffect(() => {
   const fetchData = async () => {
     try {
@@ -88,8 +89,6 @@ useEffect(() => {
         console.error("Erro ao buscar as chamadas abertas:", error);
       });
   }, []);
-
-  
 
   //Abrir chamada
 

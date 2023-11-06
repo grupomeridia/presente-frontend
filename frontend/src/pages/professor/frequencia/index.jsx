@@ -174,6 +174,7 @@ const Frequencia = () => {
         anchor: "center",
       },
       legend: {
+        display:false,
         position: "left",
       },
       title: {

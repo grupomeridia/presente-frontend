@@ -5,19 +5,28 @@ import Navbar from "@/components/Navbar/navbar";
 import Footer from "@/components/Footer/Footer";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
 import { text } from "@fortawesome/fontawesome-svg-core";
+import { useUser } from "@/contexts/UserContext";
 
 import withAuth from '@/utils/auth';
 
 const historicoAluno = () => {
 
-    const [aluno, setAluno] = useState(1);
+    const { user } = useUser();
+    const id_aluno = user ? user.id_aluno : null;
     const [historico, setHistorico] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [historicoFiltrada, setHistoricoFiltrada] = useState([]);
-    const [faltasPresencas, setFaltasPresencas] = useState({ faltas: 0, nome: '', presencas: 0 });
+    const [faltasPresencas, setFaltasPresencas] = useState();
+    const [ServerResponse, setServerResponse] = useState("");
+    
+    useEffect(() => {
+        if (user) {
+          const id_aluno = user.id_aluno;
+        }
+      }, [user]);
 
     const fetchPresencasAluno = () => {
-        api.aluno.findChamadaByAluno(aluno)
+        api.aluno.findChamadaByAluno(id_aluno)
             .then(response => {
                 setHistorico(response.data);
                 setHistoricoFiltrada(response.data);
@@ -29,7 +38,7 @@ const historicoAluno = () => {
     };
 
     const fetchFaltasPresencas = () => {
-        api.aluno.presencasFaltas(aluno)
+        api.aluno.presencasFaltas(id_aluno)
             .then(response => {
                 setFaltasPresencas(response.data);
                 console.log(`presencas faltas ` + response.data);
@@ -41,11 +50,11 @@ const historicoAluno = () => {
 
     useEffect(() => {
         fetchFaltasPresencas();
-    }, [aluno]);
+    }, [id_aluno]);
 
     useEffect(() => {
         fetchPresencasAluno();
-    }, [aluno]);
+    }, [id_aluno]);
 
     const handleSearch = (e) => {
         const value = e.target.value;
