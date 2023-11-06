@@ -123,7 +123,11 @@ export default function Dashboard() {
         formatter: (value, context) => {
           let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
           let percentage = ((value * 100) / sum).toFixed(2) + "%";
-          return percentage;
+          if(percentage !== NaN){
+            return "";
+          }else{
+            return percentage ;
+          }
         },
         color: "#fff",
         anchor: "center",
@@ -132,7 +136,7 @@ export default function Dashboard() {
         labels: {
           color: "white",
         },
-        position: "right",
+        position: "right"
       },
       title: {
         display: true,
