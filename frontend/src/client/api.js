@@ -30,6 +30,7 @@ const api = {
       update: (id, chamaData) => httpClient.put('/api/chamada', id, chamaData),
       delete: (id) => httpClient.delete(`/api/chamada?id=${id}`, id),
       fecharChamada: (idChamada) => httpClient.put('/api/chamada/fecharChamada?id=' + idChamada),
+      obterUltimaChamada: (idProfessor) => httpClient.get('/api/chamada/ultimaChamada?id=' + idProfessor)
    },
    configuracao: {
       findById: (id) => httpClient.get('api/configuracao', id),

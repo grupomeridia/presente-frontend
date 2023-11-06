@@ -41,7 +41,8 @@ const Cadastrar = () => {
   const [previousCargo, setPreviousCargo] = useState(null);
   const [serverResponse, setServerResponse] = useState(null);
   const [buttonClicked, setButtonClicked] = useState(false);
-
+  const [ultimaChamada, setUltimaChamada] = useState(null);
+  const [IdProfessorAntigaChamada,setIdProfessorAntigaChamada] = useState();
 
   const resetFormStates = () => {
     setCargo("");
@@ -93,6 +94,8 @@ const Cadastrar = () => {
 
     setPreviousCargo(cargo);
   }, [cargo]);
+
+
   
 /// listAlls
 
@@ -217,6 +220,9 @@ useEffect(() => {
       });
   };
 
+ 
+
+
   const CriarUsuario = () => {
     const payload = {
       nome: nome,
@@ -247,6 +253,11 @@ useEffect(() => {
         let userId;
 
         if (cargo == 'Professor'){
+
+
+         setIdProfessorAntigaChamada(response.data.id_professor);
+
+
          userId = response.data.id_professor;
          setIdProfessor(userId);
          CadastrarProfessorouAlunoNaTurma(userId);
@@ -285,7 +296,7 @@ useEffect(() => {
         }
       });
   };
-
+  
   const CadastrarProfessorouAlunoNaTurma = (userId) => {
     if (cargo === "Professor") {
       const payload = {

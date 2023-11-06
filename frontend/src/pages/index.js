@@ -23,7 +23,7 @@ const Welcome = () => {
         <Image src={logo}></Image>
       </motion.div>
       <h1>
-"Sistema de chamada"
+"APP PRESENTE"
 
       </h1>
       <p>Faça login para começar!</p>

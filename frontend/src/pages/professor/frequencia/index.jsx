@@ -33,6 +33,8 @@ const Frequencia = () => {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [chamadasAbertas, setChamadasAbertas] = useState([]);
   const [turma,setTurmaId] = useState();
+  const [ultimaChamada, setUltimaChamada] = useState(null);
+  const [chamadaAtiva, setChamadaAtiva] = useState(false);
   
 
   useEffect(() => {
@@ -42,6 +44,8 @@ const Frequencia = () => {
       console.log("aqui ta o idProfessor:",idProfessor);
     }
   }, [user]);
+
+
   
   const fetchChamadasAbertas = () => {
     api.professor
