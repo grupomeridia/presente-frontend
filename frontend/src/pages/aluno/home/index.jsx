@@ -6,32 +6,45 @@ import Footer from "@/components/Footer/Footer";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
 import { BsFillCheckCircleFill } from 'react-icons/bs';
 import withAuth from "@/utils/auth";
-
+import { useUser } from "@/contexts/UserContext";
 
 function presencaAluno() {
-  // const [professor, setProfessor] = useState("");
-  // const [curso, setCusco] = useState("");
-  // const [projeto, setProjeto] = useState("");
-  // const [presencas, setPresencas] = useState("");
-  // const [alunos, setAlunos] = useState("");
-  // const [ativo, setAtivo] = useState(false);
-  // const [alunoRa, setAlunoRa] = useState("");
-  // const [turma, setTurma] = useState("");
-  // const [chamada, setChamada] = useState("");
-  // const [tipoPresenca, setTipoPresenca] = useState("");
-  // const [horario, setHorario] = useState("");
-  // const [isSuccess, setIsSuccess] = useState(true); 
-
-  const [aluno, setALuno] = useState(1);
+  const { user } = useUser();
+  const IdAluno = user && user.id_aluno;
+  const [aluno, setAluno] = useState();
   const [chamadasAbertas, setChamadasAbertas] = useState([]);
-  const [ra, setRa] = useState(123456);
+  const [ra, setRa] = useState();
   const [historico, setHistorico] = useState([]);
 
   historico.reverse();
 
   useEffect(() => {
+    const fetchData = async () => {
+      try{
+        const AlunosResponse = await api.aluno.chamadasAbertas(IdAluno);
+        setChamadasAbertas(AlunosResponse.data);
+  
+    }catch(error) {
+      console.error("Erro ao buscar as chamadas", error);
+    };
+  
+    if (IdAluno) {
+      fetchData();
+    }
+    }
+  },[IdAluno]);
+
+  useEffect(() => {
+    if (user) {
+      console.log("User:", user);
+      setAluno(user.id_aluno);
+      setRa(user.RA)
+    }
+  }, [user]);
+
+  useEffect(() => {
     api.aluno
-      .chamadasAbertas(aluno)
+      .chamadasAbertas(IdAluno)
       .then((response) => {
         console.log(response.data);
         setChamadasAbertas(response.data);
@@ -159,4 +172,4 @@ function presencaAluno() {
 
 }
 
-export default withAuth(presencaAluno,['Aluno']);
+export default withAuth(presencaAluno, ['Aluno']);

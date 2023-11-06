@@ -531,4 +531,4 @@ useEffect(() => {
   );
 }
 
-export default withAuth(Cadastrar,['Admin']);
+export default Cadastrar;
