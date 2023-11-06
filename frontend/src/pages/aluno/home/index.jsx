@@ -4,53 +4,66 @@ import styles from "./style.module.css";
 import Navbar from "@/components/Navbar/navbar";
 import Footer from "@/components/Footer/Footer";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
-import { BsFillCheckCircleFill } from 'react-icons/bs';
+import { BsFillCheckCircleFill } from "react-icons/bs";
 import withAuth from "@/utils/auth";
-
+import { useUser } from "@/contexts/UserContext";
 
 function presencaAluno() {
-  // const [professor, setProfessor] = useState("");
-  // const [curso, setCusco] = useState("");
-  // const [projeto, setProjeto] = useState("");
-  // const [presencas, setPresencas] = useState("");
-  // const [alunos, setAlunos] = useState("");
-  // const [ativo, setAtivo] = useState(false);
-  // const [alunoRa, setAlunoRa] = useState("");
-  // const [turma, setTurma] = useState("");
-  // const [chamada, setChamada] = useState("");
-  // const [tipoPresenca, setTipoPresenca] = useState("");
-  // const [horario, setHorario] = useState("");
-  // const [isSuccess, setIsSuccess] = useState(true); 
-
-  const [aluno, setALuno] = useState(1);
+  const { user } = useUser();
+  // const [aluno, setALuno] = useState(1);
   const [chamadasAbertas, setChamadasAbertas] = useState([]);
-  const [ra, setRa] = useState(123456);
   const [historico, setHistorico] = useState([]);
+  const id_aluno = user ? user.id_aluno : null;
+  const ra = user ? user.RA : null;
+  const [ServerResponse, setServerResponse] = useState("");
 
   historico.reverse();
 
   useEffect(() => {
+    if (user) {
+      const id_aluno = user.id_aluno;
+      const ra = user.RA;
+    }
+  }, [user]);
+
+  const fetchChamadasAbertas = () => {
     api.aluno
-      .chamadasAbertas(aluno)
+      .chamadasAbertas(id_aluno)
       .then((response) => {
         console.log(response.data);
         setChamadasAbertas(response.data);
+        setServerResponse(response.data);
       })
       .catch((error) => {
         console.error("Erro ao buscar as chamadas abertas:", error);
+        setServerResponse(error.response.data);
       });
-  }, []);
+    };
 
-  const fazerChamada = () => {
+    useEffect(() => {
+      fetchChamadasAbertas();
+      fetchPresencasAluno();
+    }, [id_aluno]);
+
+  const fazerChamada = (id_chamada) => {
+    // if (!ra) {
+    //   console.error("RA não disponível.");
+    //   return;
+    // }
+
     const body = {
       ra: parseInt(ra, 10),
     };
+
+    console.log(ra);
 
     api.aluno
       .presenca(body)
       .then((response) => {
         console.log("Chamada marcada com sucesso:", response.data);
         setServerResponse(response.data);
+        fetchChamadasAbertas();
+        fetchPresencasAluno();
       })
       .catch((error) => {
         console.error("Erro:", error);
@@ -62,22 +75,20 @@ function presencaAluno() {
   };
 
   const fetchPresencasAluno = () => {
-    api.aluno.findChamadaByAluno(aluno)
-      .then(response => {
+    api.aluno
+      .findChamadaByAluno(id_aluno)
+      .then((response) => {
         setHistorico(response.data);
         console.log(response.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("Error ao buscar a lista de presencas", error);
       });
   };
 
   useEffect(() => {
     fetchPresencasAluno();
-  }, [aluno]);
-
-
-
+  }, [id_aluno]);
 
   return (
     <div>
@@ -91,13 +102,6 @@ function presencaAluno() {
             </div>
             <table className={styles.tabela}>
               <thead className={styles.tableHeader}>
-                <tr className={styles.row}>
-                  <th className={styles.headerCell}>Professor</th>
-                  <th className={styles.headerCell}>materia</th>
-                  <th className={styles.headerCell}>Abertura</th>
-                  <th className={styles.headerCell}>Encerramento</th>
-                  <th className={styles.headerCell}>Acoes</th>
-                </tr>
               </thead>
               {chamadasAbertas && chamadasAbertas.length > 0 ? (
                 <tbody className={styles.tableBody}>
@@ -106,11 +110,17 @@ function presencaAluno() {
                       <td className={styles.cell}>{chamada.professor_nome}</td>
                       <td className={styles.cell}>{chamada.materia_nome}</td>
                       <td className={styles.cell}>{chamada.abertura}</td>
-                      <td className={styles.cell}>{chamada.encerramento ? chamada.encerramento : "não definido"}</td>
                       <td className={styles.cell}>
-                        <button className={styles.botaoRealizaChamada} onClick={() => fazerChamada(chamada.id_chamada)}>
+                        {chamada.encerramento
+                          ? chamada.encerramento
+                          : "não definido"}
+                      </td>
+                      <td className={styles.cell}>
+                        <button
+                          className={styles.botaoRealizaChamada}
+                          onClick={() => fazerChamada(chamada.id_chamada)}
+                        >
                           Marcar Presenca
-                          {/* <BsFillCheckCircleFill/> */}
                         </button>
                       </td>
                     </tr>
@@ -119,16 +129,17 @@ function presencaAluno() {
               ) : (
                 <tbody className={styles.tableBody}>
                   <tr className={styles.row}>
-                    <td colSpan="5" className={styles.cell}>Nao ha chamadas</td>
+                    <td colSpan="5" className={styles.cell}>
+                      Não há chamadas
+                    </td>
                   </tr>
                 </tbody>
               )}
             </table>
-
           </div>
           <div className={styles.historico}>
             <div>
-              <h1>Ultimas Chamadas</h1>
+              <h1>Últimas Chamadas</h1>
             </div>
             <table className={styles.tabela}>
               {historico && historico.length > 0 ? (
@@ -137,7 +148,9 @@ function presencaAluno() {
                     <tr key={item.id_presenca} className={styles.row}>
                       <td className={styles.cell}>{item.nome}</td>
                       <td className={styles.cell}>{item.horario}</td>
-                      <td className={styles.cell}>{item.status ? "ativo" : "inativo"}</td>
+                      <td className={styles.cell}>
+                        {item.status ? "ativo" : "inativo"}
+                      </td>
                       <td className={styles.cell}>{item.tipo_presenca}</td>
                     </tr>
                   ))}
@@ -145,7 +158,9 @@ function presencaAluno() {
               ) : (
                 <tbody className={styles.tableBody}>
                   <tr className={styles.row}>
-                    <td colSpan="4" className={styles.cell}>Semhistorico</td>
+                    <td colSpan="4" className={styles.cell}>
+                      Sem Historico
+                    </td>
                   </tr>
                 </tbody>
               )}
@@ -153,10 +168,8 @@ function presencaAluno() {
           </div>
         </section>
       </section>
-      <Footer />
     </div>
   );
-
 }
 
-export default withAuth(presencaAluno,['Aluno']);
+export default withAuth(presencaAluno, ["Aluno"]);
