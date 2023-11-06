@@ -24,25 +24,30 @@ const withAuth = (WrappedComponent, roles = []) => {
   
           // Se não houver usuário ou a sessão expirou, faça logout
           if (!storedUser || (timestamp && currentTime - parseInt(timestamp) > sessionTimeout)) {
-            localStorage.removeItem('user');
-            localStorage.removeItem('timestamp');
-            router.push('/login');
+            logout();
           } else {
-            // Atualiza o timestamp se o usuário estiver logado
             if (storedUser) {
               localStorage.setItem('timestamp', currentTime.toString());
             }
   
+            // Tratamento do cargo antes de setar o usuário
+            const cleanCargo = storedUser?.Cargo.replace(/_/g, ' ');
+
+            // Atualize o storedUser com o cargo tratado
+          const updatedUser = {
+            ...storedUser,
+            Cargo: cleanCargo,
+          };
+
             // Verificação do cargo
-            if (storedUser && roles.length && !roles.includes(storedUser.Cargo)) {
-              router.push('/error');
-            } else {
-              // Usuário autenticado e com cargo permitido
-              setUser(storedUser);
-            }
+           if (updatedUser && roles.length && !roles.includes(updatedUser.Cargo)) {
+            router.push('/error');
+          } else {
+            setUser(updatedUser);
           }
-          setLoading(false);
-        };
+        }
+        setLoading(false);
+      };
   
         verifyUser();
         // Adicionado um identificador da sessão para forçar a verificação quando voltar para o aplicativo
