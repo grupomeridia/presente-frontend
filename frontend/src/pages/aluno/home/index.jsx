@@ -29,33 +29,6 @@ function presencaAluno() {
   const fetchChamadasAbertas = () => {
     api.aluno
       .chamadasAbertas(id_aluno)
-
-    const fetchData = async () => {
-      try{
-        const AlunosResponse = await api.aluno.chamadasAbertas(IdAluno);
-        setChamadasAbertas(AlunosResponse.data);
-  
-    }catch(error) {
-      console.error("Erro ao buscar as chamadas", error);
-    };
-  
-    if (IdAluno) {
-      fetchData();
-    }
-    }
-  },[IdAluno]);
-
-  useEffect(() => {
-    if (user) {
-      console.log("User:", user);
-      setAluno(user.id_aluno);
-      setRa(user.RA)
-    }
-  }, [user]);
-
-  useEffect(() => {
-    api.aluno
-      .chamadasAbertas(IdAluno)
       .then((response) => {
         console.log(response.data);
         setChamadasAbertas(response.data);
@@ -169,6 +142,14 @@ function presencaAluno() {
               <h1>Últimas Chamadas</h1>
             </div>
             <table className={styles.tabela}>
+            <thead className={styles.tableHeader}>
+                  <tr className={styles.row}>
+                    <th className={styles.cell}>Nome</th>
+                    <th className={styles.cell}>Horário</th>
+                    <th className={styles.cell}>Status</th>
+                    <th className={styles.cell}>Tipo Presença</th>
+                  </tr>
+              </thead>
               {historico && historico.length > 0 ? (
                 <tbody className={styles.tableBody}>
                   {historico.slice(0, 4).map((item) => (
@@ -200,4 +181,3 @@ function presencaAluno() {
 }
 
 export default withAuth(presencaAluno, ["Aluno"]);
-

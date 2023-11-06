@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useMemo } from "react";
 import api from "@/client/api";
 import styles from "./style.module.css";
 import Navbar from "@/components/Navbar/navbar";
@@ -6,10 +6,15 @@ import Footer from "@/components/Footer/Footer";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
 import { text } from "@fortawesome/fontawesome-svg-core";
 import { useUser } from "@/contexts/UserContext";
+import Pagination from "@/components/Paginacao/pagination";
 
 import withAuth from '@/utils/auth';
 
+let PageSize = 10;
+
 const historicoAluno = () => {
+
+ 
 
     const { user } = useUser();
     const id_aluno = user ? user.id_aluno : null;
@@ -18,12 +23,20 @@ const historicoAluno = () => {
     const [historicoFiltrada, setHistoricoFiltrada] = useState([]);
     const [faltasPresencas, setFaltasPresencas] = useState();
     const [ServerResponse, setServerResponse] = useState("");
-    
+
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const currentTableData = useMemo(() => {
+        const firstPageIndex = (currentPage - 1) * PageSize;
+        const lastPageIndex = firstPageIndex + PageSize;
+        return historicoFiltrada.slice(firstPageIndex, lastPageIndex);
+    }, [currentPage]);
+
     useEffect(() => {
         if (user) {
-          const id_aluno = user.id_aluno;
+            const id_aluno = user.id_aluno;
         }
-      }, [user]);
+    }, [user]);
 
     const fetchPresencasAluno = () => {
         api.aluno.findChamadaByAluno(id_aluno)
@@ -105,7 +118,7 @@ const historicoAluno = () => {
                                     <th className={styles.headerCell}>Nome</th>
                                     <th className={styles.headerCell}>Dia/Hora</th>
                                     <th className={styles.headerCell}>Status</th>
-                                    <th className={styles.headerCell}>Tipo de Presenca</th>
+                                    <th className={styles.headerCell}>Tipo de Presença</th>
                                 </tr>
                             </thead>
                             <tbody className={styles.tableBody}>
@@ -119,6 +132,13 @@ const historicoAluno = () => {
                                 ))}
                             </tbody>
                         </table>
+                        <Pagination
+                            className="pagination-bar"
+                            currentPage={currentPage}
+                            totalCount={historicoFiltrada.length}
+                            pageSize={PageSize}
+                            onPageChange={page => setCurrentPage(page)}
+                        />
                     </div>
                 </section>
             </section>
@@ -128,4 +148,4 @@ const historicoAluno = () => {
 
 }
 
-export default  withAuth(historicoAluno,['Aluno']);
+export default withAuth(historicoAluno, ['Aluno']);
