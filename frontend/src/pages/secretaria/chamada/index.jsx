@@ -50,6 +50,8 @@ function ChamadaForm() {
     
     return (
         <>
+        <Cabecalho/>
+        <NavBar/>
             <Fundo className={styles.Fundo}>
                 <section className={styles.contentChamada}>
                     <div>
@@ -130,6 +132,7 @@ function ChamadaForm() {
     );
 }
 
-export default withAuth(ChamadaForm,['Admin']);
+export default withAuth(ChamadaForm,['Secretaria']);
+
 
 

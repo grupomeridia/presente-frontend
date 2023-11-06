@@ -28,7 +28,6 @@ const Dashboard = () => {
   const [mediaAlunosPresentesAusentes, setMediaAlunosPresentesAusentes] = useState([]);
   const [turmaPresentesAusentes, setTurmaPresentesAusentes] = useState([]);
   const [turmaAtivosInativos, setTurmaAtivosInativos] = useState([]);
-  
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -116,6 +115,7 @@ const Dashboard = () => {
     }
 
   };
+
 
   const [labelControl, setLabelControl] = useState(true);
   const [dataForTheChart, setDataForTheChart] = useState([]);
@@ -434,4 +434,5 @@ useEffect(() => {
 
 }
 
-export default withAuth(Dashboard, ['Secretaria']);
+export default withAuth(Dashboard,['Secretaria']);
+

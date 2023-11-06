@@ -29,33 +29,6 @@ function presencaAluno() {
   const fetchChamadasAbertas = () => {
     api.aluno
       .chamadasAbertas(id_aluno)
-
-    const fetchData = async () => {
-      try{
-        const AlunosResponse = await api.aluno.chamadasAbertas(IdAluno);
-        setChamadasAbertas(AlunosResponse.data);
-  
-    }catch(error) {
-      console.error("Erro ao buscar as chamadas", error);
-    };
-  
-    if (IdAluno) {
-      fetchData();
-    }
-    }
-  },[IdAluno]);
-
-  useEffect(() => {
-    if (user) {
-      console.log("User:", user);
-      setAluno(user.id_aluno);
-      setRa(user.RA)
-    }
-  }, [user]);
-
-  useEffect(() => {
-    api.aluno
-      .chamadasAbertas(IdAluno)
       .then((response) => {
         console.log(response.data);
         setChamadasAbertas(response.data);
@@ -200,4 +173,3 @@ function presencaAluno() {
 }
 
 export default withAuth(presencaAluno, ["Aluno"]);
-

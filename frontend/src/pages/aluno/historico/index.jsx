@@ -18,6 +18,8 @@ const historicoAluno = () => {
     const [historicoFiltrada, setHistoricoFiltrada] = useState([]);
     const [faltasPresencas, setFaltasPresencas] = useState();
     const [ServerResponse, setServerResponse] = useState("");
+
+    historico.reverse();
     
     useEffect(() => {
         if (user) {
@@ -103,7 +105,7 @@ const historicoAluno = () => {
                             <thead className={styles.tableHeader}>
                                 <tr className={styles.row}>
                                     <th className={styles.headerCell}>Nome</th>
-                                    <th className={styles.headerCell}>Dia/Hora</th>
+                                    <th className={styles.headerCell}>Data</th>
                                     <th className={styles.headerCell}>Status</th>
                                     <th className={styles.headerCell}>Tipo de Presenca</th>
                                 </tr>
@@ -122,7 +124,6 @@ const historicoAluno = () => {
                     </div>
                 </section>
             </section>
-            <Footer />
         </div>
     );
 

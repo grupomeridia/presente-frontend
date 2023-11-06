@@ -32,21 +32,11 @@ const Frequencia = () => {
   const [loading, setLoading] = useState(true);  
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [chamadasAbertas, setChamadasAbertas] = useState([]);
+  const [turma,setTurmaId] = useState();
+  const [ultimaChamada, setUltimaChamada] = useState(null);
+  const [chamadaAtiva, setChamadaAtiva] = useState(false);
   
 
-  const fetchChamadasAbertas = () => {
-    api.professor
-      .chamadasAbertas(idProfessor)
-      .then((response) => {
-        console.log(response.data);
-        setChamadasAbertas(response.data);
-        setIdChamada(response.data[0].id_chamada);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar as chamadas abertas:", error);
-      });
-  }
-  
   useEffect(() => {
     if (user) {
       console.log("User:", user);
@@ -55,6 +45,22 @@ const Frequencia = () => {
     }
   }, [user]);
 
+
+  
+  const fetchChamadasAbertas = () => {
+    api.professor
+      .chamadasAbertas(idProfessor)
+      .then((response) => {
+        console.log(response.data);
+        setChamadasAbertas(response.data);
+        setIdChamada(response.data[0].id_chamada);
+        console.log(response.data[0].id_novo);
+        setTurmaId(response.data[0].id_novo);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as chamadas abertas:", error);
+      });
+  }
 
   useEffect(() => {
     api.professor
@@ -67,6 +73,7 @@ const Frequencia = () => {
         console.error("Erro ao buscar as chamadas abertas:", error);
       });
   }, []);
+  
   
   const startLoadingProgress = () => {
     let progress = 0;
@@ -162,19 +169,18 @@ const Frequencia = () => {
           dataArr.forEach((data) => {
             sum += data;
           });
-          let percentage = ((value * 100) / sum).toFixed(2) + "%";
+          let percentage = ((value * 100) / sum);
           console.log(percentage)
-          if(percentage !== NaN){
+          if(isNaN(percentage)){
             return "";
           }else{
-            return percentage ;
+            return percentage.toFixed(2) + "%";
           }
         },
         color: "#fff",
         anchor: "center",
       },
       legend: {
-        display:false,
         position: "left",
       },
       title: {
@@ -186,7 +192,7 @@ const Frequencia = () => {
 
   const fetchPorcentagemPresenca = () => {
     api.professor
-      .historicoSemanal(idProfessor)
+      .historicoSemanal(turma)
       .then((response) => {
         console.log("Resposta completa:", response);
         console.log("Dados da resposta:", response.data);
@@ -194,6 +200,7 @@ const Frequencia = () => {
           let valorNormal = parseFloat(
             response.data.porcentagem_presenca
           ).toFixed(2);
+          console.log(valorNormal)
           setPorcentagemPresenca(valorNormal);
         } else {
           console.error(
@@ -209,7 +216,7 @@ const Frequencia = () => {
 
   useEffect(() => {
     fetchPorcentagemPresenca();
-  }, [idProfessor, idChamada]);
+  }, [idProfessor, idChamada, turma]);
 
   const diasDaSemana = [
     "Domingo",
@@ -223,7 +230,7 @@ const Frequencia = () => {
 
   const fetchMediaSemanal = () => {
     api.professor
-      .mediaSemanal(idProfessor)
+      .mediaSemanal(turma)
       .then((response) => {
         console.log("Dados da resposta:", response.data);
         setMediaSemanalData(response.data);
@@ -235,7 +242,7 @@ const Frequencia = () => {
 
   useEffect(() => {
     fetchMediaSemanal();
-  }, [idProfessor]);
+  }, [turma]);
 
   const GraficoBarraOptions = {
     scales: {
