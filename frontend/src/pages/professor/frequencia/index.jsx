@@ -10,42 +10,71 @@ import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
 import LoadingBar from "@/components/Loading";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
 import api from "@/client/api";
+import { setCallback } from "@/utils/sending";
 
 import { useUser } from "@/contexts/UserContext";
+import withAuth from "@/utils/auth";
 
 
 Chart.register(ChartDataLabels);
 
-export default function Frequencia() {
+const Frequencia = () => {
   const [numAlunosData, setNumAlunosData] = useState(null);
   const { user } = useUser();
   const [idProfessor, setIdProfessor] = useState(user ? user.id_professor : null);
-  const [idChamada, setIdChamada] = useState(null);
+  const [id,setId] = useState();
+  const [idChamada, setIdChamada] = useState();
   const [presentes, setPresentes] = useState();
   const [ausentes, setAusentes] = useState();
   const [totalAlunos, setTotalAlunos] = useState();
   const [porcentagemPresenca, setPorcentagemPresenca] = useState(null);
   const [mediaSemanalData, setMediaSemanalData] = useState([]);
-  const [loading, setLoading] = useState(true); // Mantenha o estado de loading sempre verdadeiro
+  const [loading, setLoading] = useState(true);  
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [chamadasAbertas, setChamadasAbertas] = useState([]);
+  const [turma,setTurmaId] = useState();
+  const [ultimaChamada, setUltimaChamada] = useState(null);
+  const [chamadaAtiva, setChamadaAtiva] = useState(false);
   
-
 
   useEffect(() => {
-    if (idProfessor) {
-      api.professor.chamadasAbertas(idProfessor)
-        .then(response => {
-          if (response.data && response.data.length > 0) {
-            setIdChamada(response.data[0].id); 
-          }
-        })
-        .catch(error => {
-          console.error("Erro ao buscar chamadas abertas:", error);
-        });
+    if (user) {
+      console.log("User:", user);
+      setIdProfessor(user.id_professor);
+      console.log("aqui ta o idProfessor:",idProfessor);
     }
-  }, [idProfessor]);
-  
+  }, [user]);
 
+
+  
+  const fetchChamadasAbertas = () => {
+    api.professor
+      .chamadasAbertas(idProfessor)
+      .then((response) => {
+        console.log(response.data);
+        setChamadasAbertas(response.data);
+        setIdChamada(response.data[0].id_chamada);
+        console.log(response.data[0].id_novo);
+        setTurmaId(response.data[0].id_novo);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as chamadas abertas:", error);
+      });
+  }
+
+  useEffect(() => {
+    api.professor
+      .chamadasAbertas(idProfessor)
+      .then((response) => {
+        console.log(response.data[0].id_chamada)
+        setIdChamada(response.data[0].id_chamada);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as chamadas abertas:", error);
+      });
+  }, []);
+  
+  
   const startLoadingProgress = () => {
     let progress = 0;
     const interval = 1000;
@@ -70,7 +99,9 @@ export default function Frequencia() {
   
   useEffect(() => {
     if (loadingProgress === 100) {
+      fetchChamadasAbertas();
       fetchDados();
+      
     }
   }, [loadingProgress]);
 
@@ -97,6 +128,7 @@ export default function Frequencia() {
 
   useEffect(() => {
     startLoadingProgress();
+    fetchChamadasAbertas();
     fetchDados();
   
     return () => {
@@ -137,8 +169,13 @@ export default function Frequencia() {
           dataArr.forEach((data) => {
             sum += data;
           });
-          let percentage = ((value * 100) / sum).toFixed(2) + "%";
-          return percentage;
+          let percentage = ((value * 100) / sum);
+          console.log(percentage)
+          if(isNaN(percentage)){
+            return "";
+          }else{
+            return percentage.toFixed(2) + "%";
+          }
         },
         color: "#fff",
         anchor: "center",
@@ -155,7 +192,7 @@ export default function Frequencia() {
 
   const fetchPorcentagemPresenca = () => {
     api.professor
-      .historicoSemanal(idProfessor)
+      .historicoSemanal(turma)
       .then((response) => {
         console.log("Resposta completa:", response);
         console.log("Dados da resposta:", response.data);
@@ -163,6 +200,7 @@ export default function Frequencia() {
           let valorNormal = parseFloat(
             response.data.porcentagem_presenca
           ).toFixed(2);
+          console.log(valorNormal)
           setPorcentagemPresenca(valorNormal);
         } else {
           console.error(
@@ -178,7 +216,7 @@ export default function Frequencia() {
 
   useEffect(() => {
     fetchPorcentagemPresenca();
-  }, [idProfessor, idChamada]);
+  }, [idProfessor, idChamada, turma]);
 
   const diasDaSemana = [
     "Domingo",
@@ -192,7 +230,7 @@ export default function Frequencia() {
 
   const fetchMediaSemanal = () => {
     api.professor
-      .mediaSemanal(idProfessor)
+      .mediaSemanal(turma)
       .then((response) => {
         console.log("Dados da resposta:", response.data);
         setMediaSemanalData(response.data);
@@ -204,7 +242,7 @@ export default function Frequencia() {
 
   useEffect(() => {
     fetchMediaSemanal();
-  }, [idProfessor]);
+  }, [turma]);
 
   const GraficoBarraOptions = {
     scales: {
@@ -272,8 +310,8 @@ export default function Frequencia() {
               <h2>Presenças Marcadas</h2>
               <h3>
                 {numAlunosData
-                  ? `${presentes}/${totalAlunos}`
-                  : "Carregando..."}
+                  ? `${presentes || 0}/${totalAlunos}`
+                  : "Sem chamada Aberta."}
               </h3>
             </div>
             <div className={styles.graficoCircular}>
@@ -302,7 +340,7 @@ export default function Frequencia() {
               Frequencia Semanal: <br />{" "}
               {porcentagemPresenca
                 ? porcentagemPresenca + "%"
-                : "Carregando..."}
+                : "Sem chamada Aberta."}
             </h2>
           </div>
         </div>
@@ -310,3 +348,5 @@ export default function Frequencia() {
     </>
   );
 }
+
+export default withAuth(Frequencia,['Professor']);

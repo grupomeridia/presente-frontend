@@ -87,4 +87,4 @@ const Presenca = () => {
   );
 }
 
-export default withAuth(Presenca,['Professor']);
+export default withAuth(Presenca,['Secretaria']);

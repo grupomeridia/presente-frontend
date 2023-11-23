@@ -15,6 +15,9 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const { user, setUser } = useUser();
+  const [serverResponse, setServerResponse] = useState(null);
+  const [buttonClicked, setButtonClicked] = useState(false);
+
 
   const handleShowClick = () => setShowPassword(!showPassword);
 
@@ -22,6 +25,7 @@ const SignIn = () => {
     e.preventDefault();
     Login();
 }
+
 
   const Login = () => {
     const payload = {
@@ -34,23 +38,60 @@ const SignIn = () => {
     api.usuario.login(payload)
     .then((response) => {
       console.log("Resposta completa:", response);
-      if (response.status === 200 && response.statusText == "OK" && response.data.id_aluno !== null ) { 
+      if (response.status === 200 && response.statusText == "OK" && response.data.id_aluno !== null) { 
         setUser(response.data);
+        const timestamp = new Date().getTime();
         localStorage.setItem('user', JSON.stringify(response.data));
+        localStorage.setItem('timestamp', timestamp.toString());
         router.push(response.data.Cargo.toLowerCase() + '/home');
       } else {
-        alert(response.data ? response.data.message : "Resposta inesperada do servidor.");
+        console.log(response.data ? response.data.message : "Resposta inesperada do servidor.");
       }
     })
     .catch((error) => {
-      alert("Erro durante a tentativa de login.");
+      setServerResponse(error.response.data);
+      setButtonClicked(true);
+      // alert("Erro durante a tentativa de login.");
       console.error(error);
     });
   }
 
+  const renderResponse = () => {
+    if (!buttonClicked) {
+      return null;
+    } else {
+      const successIcon = "✅";
+      const errorIcon = "❌";
+      let responseMessage = "";
+  
+      if (typeof serverResponse === 'object' && serverResponse.mensagem) {
+        responseMessage = serverResponse.mensagem;
+      } else if (typeof serverResponse === 'string') {
+        responseMessage = serverResponse;
+      }
+  
+      if (responseMessage === "Login Feito") {
+        return (
+          <div>
+            {successIcon} {responseMessage}
+          </div>
+        );
+      } else {
+        return (
+          <div>
+            {errorIcon} {responseMessage}
+          </div>
+        );
+      }
+    }
+  };
+
   return (
+    <>
+   
     <div className={styles.container}>
       <div className={styles.card}>
+      <div className={styles.serverResponse}>{renderResponse()}</div>
       <div className={styles.avatar_center}>
             <Image src={logo} className={styles.avatar}/>
         <h1 className={styles.title}>Bem Vindo</h1>
@@ -91,6 +132,7 @@ const SignIn = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 

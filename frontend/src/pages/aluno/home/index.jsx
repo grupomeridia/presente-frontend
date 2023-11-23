@@ -1,25 +1,69 @@
-import Navbar from "@/components/Navbar/navbar";
-import styles from "./style.module.css";
-import { Fundo } from "@/components/Fundo/fundo";
-import Cabecalho from "@/components/Cabecalho/cabecalho";
 import React, { useState, useEffect } from "react";
-
 import api from "@/client/api";
+import styles from "./style.module.css";
+import Navbar from "@/components/Navbar/navbar";
+import Footer from "@/components/Footer/Footer";
+import Cabecalho from "@/components/Cabecalho/cabecalho";
+import { BsFillCheckCircleFill } from "react-icons/bs";
+import withAuth from "@/utils/auth";
+import { useUser } from "@/contexts/UserContext";
 
-export default function Presenca() {
-  const [ra, setRa] = useState(null);
-  const [serverResponse, setServerResponse] = useState(null);
+function presencaAluno() {
+  const { user } = useUser();
+  // const [aluno, setALuno] = useState(1);
+  const [chamadasAbertas, setChamadasAbertas] = useState([]);
+  const [historico, setHistorico] = useState([]);
+  const id_aluno = user ? user.id_aluno : null;
+  const ra = user ? user.RA : null;
+  const [ServerResponse, setServerResponse] = useState("");
 
-  const MarcarPresenca = () => {
+  historico.reverse();
+
+  useEffect(() => {
+    if (user) {
+      const id_aluno = user.id_aluno;
+      const ra = user.RA;
+    }
+  }, [user]);
+
+  const fetchChamadasAbertas = () => {
+    api.aluno
+      .chamadasAbertas(id_aluno)
+      .then((response) => {
+        console.log(response.data);
+        setChamadasAbertas(response.data);
+        setServerResponse(response.data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar as chamadas abertas:", error);
+        setServerResponse(error.response.data);
+      });
+    };
+
+    useEffect(() => {
+      fetchChamadasAbertas();
+      fetchPresencasAluno();
+    }, [id_aluno]);
+
+  const fazerChamada = (id_chamada) => {
+    // if (!ra) {
+    //   console.error("RA não disponível.");
+    //   return;
+    // }
+
     const body = {
       ra: parseInt(ra, 10),
     };
 
-    api.professor
+    console.log(ra);
+
+    api.aluno
       .presenca(body)
       .then((response) => {
         console.log("Chamada marcada com sucesso:", response.data);
         setServerResponse(response.data);
+        fetchChamadasAbertas();
+        fetchPresencasAluno();
       })
       .catch((error) => {
         console.error("Erro:", error);
@@ -30,44 +74,102 @@ export default function Presenca() {
       });
   };
 
-  const renderResponseMessage = () => {
-    if (!ra) {
-      return "Por favor, insira um RA.";
-    }
-    if (serverResponse && serverResponse.mensagem) {
-      return serverResponse.mensagem === "presença registrada"
-        ? `✅ ${serverResponse.mensagem}`
-        : `❌ ${serverResponse.mensagem}`;
-    }
-    return "";
+  const fetchPresencasAluno = () => {
+    api.aluno
+      .findChamadaByAluno(id_aluno)
+      .then((response) => {
+        setHistorico(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log("Error ao buscar a lista de presencas", error);
+      });
   };
 
-  
+  useEffect(() => {
+    fetchPresencasAluno();
+  }, [id_aluno]);
 
   return (
-    <>
-      <Navbar />
+    <div>
       <Cabecalho />
-      <Fundo>
-        <div className={styles.fundoContainer}>
-          <div className={styles.serverResponse}>{renderResponseMessage()}</div>
-          <div className={styles.form_center}>
-            <div className={styles.form}>
-              <h2 className={styles.titulo}>Realizar Presença</h2>
-              <input
-                className={styles.input}
-                type="text"
-                placeholder="Informe o RA"
-                value={ra || ""}
-                onChange={(e) => setRa(e.target.value)}
-              ></input>
+      <Navbar />
+      <section className={styles.page_content}>
+        <section className={styles.inner_content}>
+          <div className={styles.chamada}>
+            <div>
+              <h1>Chamadas abertas</h1>
             </div>
-            <button className={styles.botao} onClick={MarcarPresenca}>
-              Confirmar Presença
-            </button>
+            <table className={styles.tabela}>
+              <thead className={styles.tableHeader}>
+              </thead>
+              {chamadasAbertas && chamadasAbertas.length > 0 ? (
+                <tbody className={styles.tableBody}>
+                  {chamadasAbertas.map((chamada) => (
+                    <tr key={chamada.id} className={styles.row}>
+                      <td className={styles.cell}>{chamada.professor_nome}</td>
+                      <td className={styles.cell}>{chamada.materia_nome}</td>
+                      <td className={styles.cell}>{chamada.abertura}</td>
+                      <td className={styles.cell}>
+                        {chamada.encerramento
+                          ? chamada.encerramento
+                          : "não definido"}
+                      </td>
+                      <td className={styles.cell}>
+                        <button
+                          className={styles.botaoRealizaChamada}
+                          onClick={() => fazerChamada(chamada.id_chamada)}
+                        >
+                          Marcar Presenca
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              ) : (
+                <tbody className={styles.tableBody}>
+                  <tr className={styles.row}>
+                    <td colSpan="5" className={styles.cell}>
+                      Não há chamadas
+                    </td>
+                  </tr>
+                </tbody>
+              )}
+            </table>
           </div>
-        </div>
-      </Fundo>
-    </>
+          <div className={styles.historico}>
+            <div>
+              <h1>Últimas Chamadas</h1>
+            </div>
+            <table className={styles.tabela}>
+              {historico && historico.length > 0 ? (
+                <tbody className={styles.tableBody}>
+                  {historico.slice(0, 4).map((item) => (
+                    <tr key={item.id_presenca} className={styles.row}>
+                      <td className={styles.cell}>{item.nome}</td>
+                      <td className={styles.cell}>{item.horario}</td>
+                      <td className={styles.cell}>
+                        {item.status ? "ativo" : "inativo"}
+                      </td>
+                      <td className={styles.cell}>{item.tipo_presenca}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              ) : (
+                <tbody className={styles.tableBody}>
+                  <tr className={styles.row}>
+                    <td colSpan="4" className={styles.cell}>
+                      Sem Historico
+                    </td>
+                  </tr>
+                </tbody>
+              )}
+            </table>
+          </div>
+        </section>
+      </section>
+    </div>
   );
 }
+
+export default withAuth(presencaAluno, ["Aluno"]);

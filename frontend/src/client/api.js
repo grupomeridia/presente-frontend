@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const httpClient = axios.create({
-   baseURL: "http://localhost:5001",
+   baseURL: "http://localhost:5000",
 });
 
 const api = {
@@ -15,9 +15,16 @@ const api = {
       presencasFaltas:(id_aluno) => httpClient.get(`/api/aluno/PresencaFalta?id_aluno=` + id_aluno),
       chamadasAbertas: (id_aluno) => httpClient.get(`/api/chamada/aluno?id=` + id_aluno),
       presenca: (body) => httpClient.post('/api/presenca/ra', body),
+      presentesAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=`+id_turma ),
+      ativosInativos: (id_turma) => httpClient.get(`/api/aluno/AtivoInativo?id_turma=`+id_turma),
+      mediaAtivosInativos: (id_turma) => httpClient.get(`/api/aluno/mediaAtivo?id_turma=`+id_turma),
+      mediaPresentesAusentes: (id_turma) => httpClient.get(`/api/aluno/mediaAusente?id_turma=`+id_turma),
+      statusAluno: (idAluno) => httpClient.get('/api/aluno/alunoStatus?id_aluno=' + idAluno),
+      fetchLembretes: (cargo, idAluno) => httpClient.get(`/api/lembrete/findLembrete?cargo=${cargo}&id=${idAluno}`)
    },
    admin: {
-      findByAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=` + id_turma)
+      findByAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=` + id_turma),
+      lembrete: (payload) => httpClient.post('/api/lembrete',payload)
    },
    chamada: {
       findById: (id) => httpClient.get('api/chamada', id),
@@ -26,6 +33,7 @@ const api = {
       update: (id, chamaData) => httpClient.put('/api/chamada', id, chamaData),
       delete: (id) => httpClient.delete(`/api/chamada?id=${id}`, id),
       fecharChamada: (idChamada) => httpClient.put('/api/chamada/fecharChamada?id=' + idChamada),
+      obterUltimaChamada: (idProfessor) => httpClient.get('/api/chamada/ultimaChamada?id=' + idProfessor)
    },
    configuracao: {
       findById: (id) => httpClient.get('api/configuracao', id),
@@ -70,9 +78,11 @@ const api = {
       delete: (id) => httpClient.delete('/api/turma', id),
       professorNaTurma: (id_turma, id_professor) => httpClient.post('/api/turma/cadastrarProfessor', id_turma, id_professor),
       alunoNaTurma: (id_turma, id_aluno) => httpClient.post('/api/turma/cadastrarAluno', id_turma, id_aluno),
+      
    },
    materia: {
-      create: (payload) => httpClient.post('api/materia', payload)
+      create: (payload) => httpClient.post('api/materia', payload),
+      listAll: () => httpClient.get('api/materia/listAll'),
    },
    usuario: {
       create: (payload) => httpClient.post('api/usuario', payload),

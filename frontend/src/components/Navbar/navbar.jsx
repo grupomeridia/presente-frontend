@@ -18,7 +18,8 @@ import { useUser } from "@/contexts/UserContext";
 const Navbar = () => {
   const [activeItem, setActiveItem] = useState("");
   const { user } = useUser();
-  const [userType, setUserType] = useState(); 
+  const [userType, setUserType] = useState();
+  const [userCurso,setUserCurso] = useState();
   const [userImage, setUserImage] = useState(""); 
   const router = useRouter();
 
@@ -26,8 +27,30 @@ const Navbar = () => {
     if (user) {
       console.log("User:", user);
       setUserType(user.Cargo);
+      setUserCurso(user.Curso);
     }
   }, [user]);
+
+ useEffect(() => {
+  if (user && user.Curso) { // Verifica se `user` e `user.Curso` estão definidos
+    console.log("User:", user);
+    const updatedCourse = user.Curso.replace(/_/g, ' ');
+    setUserCurso(updatedCourse);
+    setUserType(user.Cargo)// Armazena o curso com espaços
+  } else if (user) { // Se `user` está definido mas não tem `Curso`, talvez só precise do `Cargo`
+    setUserType(user.Cargo);
+    console.log(userType)
+  }
+}, [user]);
+
+// useEffect(() => {
+//   if (user) {
+//     console.log("User:", user);
+//     const updatedCourse = user.Curso.replace(/_/g, ' ');
+//     setUserCurso(updatedCourse);
+//     console.log(updatedCourse);
+//   }
+// }, [user]);
 
   useEffect(() => {
     console.log("Pathname:", router.pathname, "User Type:", userType);
@@ -42,7 +65,7 @@ const Navbar = () => {
   }, [router.pathname, user]);
 
   useEffect(() => {
-    const fetchedImage = ""; //adiciona aqui o caminho pra pegar a imagen no backend
+    const fetchedImage = "";
     setUserImage(fetchedImage);
   }, []);
 
@@ -50,14 +73,14 @@ const Navbar = () => {
     if (userType === "Aluno") {
       return [
         { name: "Histórico", icon: faHistory, link: "/aluno/historico" },
-        { name: "Presença", icon: faUserCheck, link: "/aluno/presenca" },
+        { name: "Presença", icon: faUserCheck, link: "/aluno/home" },
       ];
     }
 
     if (userType === "Professor") {
       return [
+        { name: "Chamada", icon: faUserCheck, link: "/professor/home" },
         { name: "Frequência", icon: faHistory, link: "/professor/frequencia" },
-        { name: "Chamada", icon: faUserCheck, link: "/professor/chamada" },
         {
           name: "Presença",
           icon: faChalkboardTeacher,
@@ -66,18 +89,18 @@ const Navbar = () => {
       ];
     }
 
-    if (userType === "Admin") {
+    if (userType === "Secretaria") {
       return [
-        { name: "Dashboard", icon: faTachometerAlt, link: "/dashboardAdmin" },
-        { name: "Chamada", icon: faUserCheck, link: "/chamada-admin" },
-        { name: "Cadastrar", icon: faUserPlus, link: "/admin/cadastrar" },
+        { name: "Dashboard", icon: faTachometerAlt, link: "/secretaria/home" },
+        { name: "Chamada", icon: faUserCheck, link: "/secretaria/chamada" },
+        { name: "Cadastrar", icon: faUserPlus, link: "/secretaria/cadastrar" },
         {
           name: "Presença",
           icon: faChalkboardTeacher,
-          link: "/presenca-admin",
+          link: "/secretaria/presenca",
         },
-        { name: "Alunos", icon: faUserPlus, link: "/alunos" },
-        { name: "Lembretes", icon: faBell, link: "/lembretes-admin" },
+        { name: "Aluno", icon: faUserPlus, link: "/secretaria/aluno" },
+        { name: "Lembrete", icon: faBell, link: "/secretaria/lembrete" },
       ];
     }
     return [];
@@ -100,7 +123,7 @@ const Navbar = () => {
               {user
                 ? user.Cargo == "Professor" || user.Cargo == "Secretaria"
                   ? user.Cargo
-                  : user.Curso
+                  : userCurso
                 : ""}
             </span>
           </div>

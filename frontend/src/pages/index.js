@@ -23,14 +23,14 @@ const Welcome = () => {
         <Image src={logo}></Image>
       </motion.div>
       <h1>
-"Sistema de chamada"
+"APP PRESENTE"
 
       </h1>
       <p>Faça login para começar!</p>
       <motion.button 
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        onClick={() => router.push('signIn')}
+        onClick={() => router.push('login')}
       >
         Acessar
       </motion.button>
