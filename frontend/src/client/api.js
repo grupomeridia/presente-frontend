@@ -18,10 +18,13 @@ const api = {
       presentesAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=`+id_turma ),
       ativosInativos: (id_turma) => httpClient.get(`/api/aluno/AtivoInativo?id_turma=`+id_turma),
       mediaAtivosInativos: (id_turma) => httpClient.get(`/api/aluno/mediaAtivo?id_turma=`+id_turma),
-      mediaPresentesAusentes: (id_turma) => httpClient.get(`/api/aluno/mediaAusente?id_turma=`+id_turma)
+      mediaPresentesAusentes: (id_turma) => httpClient.get(`/api/aluno/mediaAusente?id_turma=`+id_turma),
+      statusAluno: (idAluno) => httpClient.get('/api/aluno/alunoStatus?id_aluno=' + idAluno),
+      fetchLembretes: (cargo, idAluno) => httpClient.get(`/api/lembrete/findLembrete?cargo=${cargo}&id=${idAluno}`)
    },
    admin: {
-      findByAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=` + id_turma)
+      findByAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=` + id_turma),
+      lembrete: (payload) => httpClient.post('/api/lembrete',payload)
    },
    chamada: {
       findById: (id) => httpClient.get('api/chamada', id),

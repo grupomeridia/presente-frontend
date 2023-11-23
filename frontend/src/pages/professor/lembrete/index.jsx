@@ -13,10 +13,10 @@ const Lembrete = () =>  {
         <div className={styles.form_center}>
           <div className={styles.form}>
             <h2 className={styles.titulo}> Enviar lembrete para os alunos </h2>
-            <input className={styles.input} type="text" placeholder="Informe o RA"></input>
+            <input className={styles.input} type="text" placeholder="Titulo: "></input>
             <textarea  pattern="[a-z]{4,8}" className={styles.input} type="radio" placeholder="Informe o Lembrete: "/>
           </div>
-          <button className={styles.botao}>Enviar</button>
+          <button className={styles.botao}>Enviar</button> 
         </div>
         
       </Fundo>
@@ -24,4 +24,5 @@ const Lembrete = () =>  {
   );
 }
 
-export default withAuth(Lembrete,['Professor']);
+export default Lembrete;
+// export default withAuth(Lembrete,['Professor']);

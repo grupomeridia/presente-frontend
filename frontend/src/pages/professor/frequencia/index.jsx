@@ -311,7 +311,7 @@ const Frequencia = () => {
               <h3>
                 {numAlunosData
                   ? `${presentes || 0}/${totalAlunos}`
-                  : "Carregando..."}
+                  : "Sem chamada Aberta."}
               </h3>
             </div>
             <div className={styles.graficoCircular}>
@@ -340,7 +340,7 @@ const Frequencia = () => {
               Frequencia Semanal: <br />{" "}
               {porcentagemPresenca
                 ? porcentagemPresenca + "%"
-                : "Carregando..."}
+                : "Sem chamada Aberta."}
             </h2>
           </div>
         </div>
