@@ -116,7 +116,6 @@ const Dashboard = () => {
 
   };
 
-
   const [labelControl, setLabelControl] = useState(true);
   const [dataForTheChart, setDataForTheChart] = useState([]);
 
@@ -125,39 +124,47 @@ const Dashboard = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-        datalabels: {
-            formatter: (value, context) => {
-                let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
-                let percentage = ((value * 100) / sum);
-                
-                if (isNaN(percentage)) {
-                    setLabelControl(false);
-                    return "Selecione a Turma";
-                } else {
-                    setLabelControl(true);
-                    return percentage.toFixed(2) + "%";
-                }
-            },
-            color: "#fff",
-            anchor: "center",
+      datalabels: {
+        font: {
+          size: 15,
         },
-        legend: {
-            labels: {
-                color: "white",
-            },
-            position: "right",
-            display:labelControl
-        },
-        title: {
-            display: false,
-            text: "", 
-        },
-    },
-};
+        formatter: (value, context) => {
+          let sum = context.dataset.data.reduce((acc, data) => acc + data, 0);
+          let percentage = ((value * 100) / sum);
 
-useEffect(() => {
+          if (isNaN(percentage)) {
+            setLabelControl(false);
+            return "Selecione a Turma";
+          } else {
+            setLabelControl(true);
+            return percentage.toFixed(2) + "%";
+          }
+        },
+        // color: "#fff",
+        color: (context) => {
+          // Define um array de cores para os rótulos baseado no índice
+          const labelColors = ['#FFFFFF', '#000000']; // Branco para 'Presentes', Vermelho para 'A chegar'
+          return labelColors[context.dataIndex];
+        },
+        anchor: "center",
+      },
+      legend: {
+        labels: {
+          color: "white",
+        },
+        position: "right",
+        display: labelControl
+      },
+      title: {
+        display: false,
+        text: "",
+      },
+    },
+  };
+
+  useEffect(() => {
     setLabelControl(true);
-}, [dataForTheChart]);
+  }, [dataForTheChart]);
 
   // const GraficoCircularOptions = {
   //   responsive: true,
@@ -218,7 +225,7 @@ useEffect(() => {
   };
 
   const GraficoCircularDataAlunosAusentes = {
-    labels: ["Presentes", "A chegar"],
+    labels: ["Alunos Presentes", "Alunos a chegar"],
     datasets: [
       {
         label: "Alunos",
@@ -228,13 +235,13 @@ useEffect(() => {
             turmaPresentesAusentes?.ausentes
           ],
         //backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
-        backgroundColor: ["#748cab", "#1d2d44"],
+        backgroundColor: ["#1d2d44","#748cab"],
       },
-    ],
+    ]
   };
 
   const GraficoCircularDataAlunosAtivos = {
-    labels: ["Frequentes", "Ausentes"],
+    labels: ["Alunos Frequentes", "Alunos Ausentes"],
     datasets: [
       {
         label: "Alunos",
@@ -244,7 +251,7 @@ useEffect(() => {
             turmaAtivosInativos?.ausente
           ],
         // backgroundColor: ["rgba(255, 255, 255, 0.8)", "rgba(255, 159, 64, 0.2)"],
-        backgroundColor: ["#748cab", "#1d2d44"],
+        backgroundColor: ["#1d2d44","#748cab"],
       },
     ],
   };
@@ -269,7 +276,7 @@ useEffect(() => {
       {
         label: "Frequencia",
         data: [mediaAlunosPresentesAusentes],
-        backgroundColor: "rgba(201, 203, 207, 0.2)",
+        backgroundColor: "rgba(201, 203, 207,0.5)",
         borderColor: "rgb(201, 203, 207)",
         borderWidth: 1,
         barThickness: barThick,
@@ -322,6 +329,7 @@ useEffect(() => {
         <section className={styles.graficosCircularContent}>
 
           <div className={styles.a}>
+          
             {turmaPresentesAusentes ? (
               <div className={styles.grafico}>
                 <GraficoCircular
@@ -355,7 +363,7 @@ useEffect(() => {
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
             <div className={styles.contentHeaderBarTitle}>
-              <p>Media de alunos presentes</p>
+              <h3>Media de alunos presentes</h3>
               {/* <div>
                 <button type="button" onClick={() => handlePeriodButtonClick("dia")}>Dia</button>
                 <button type="button" onClick={() => handlePeriodButtonClick("semana")}>Semana</button>
@@ -393,7 +401,7 @@ useEffect(() => {
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
             <div className={styles.contentHeaderBarTitle}>
-              <p>Media de alunos ausentes</p>
+              <h3>Media de alunos ausentes</h3>
               {/* <div>
                 <button type="button" onClick={() => handlePeriodButtonClick("dia")}>Dia</button>
                 <button type="button" onClick={() => handlePeriodButtonClick("semana")}>Semana</button>
@@ -434,5 +442,5 @@ useEffect(() => {
 
 }
 
-export default withAuth(Dashboard,['Secretaria']);
+export default Dashboard;
 
