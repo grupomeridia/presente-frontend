@@ -52,22 +52,23 @@ const Cabecalho = () => {
 
   return (
     <>
-      <div className={style.cabecalho_center}>
+            <div className={style.cabecalho_center}>
         <div className={style.cabecalho}>
-          
           <span className={style.headerTitle}>App Chamada</span>
-          {user && user.Cargo === "Aluno" && (
+          {user?.Cargo === "Aluno" ? (
             <div className={style.lembreteIcon} onClick={toggleLembretesModal}>
-              <button onClick={handleLogout} className={style.logoutButton}>
-            <FontAwesomeIcon icon={faSignOutAlt} className={style.headerIcon} />
-          </button>
               <FontAwesomeIcon icon={faBell} />
               {lembretes.length > 0 && (
                 <span className={style.lembreteCount}>{lembretes.length}</span>
               )}
+              
             </div>
-          )}
-          
+          ) : null}
+          <div>
+          <button onClick={handleLogout} className={style.logoutButton}>
+            <FontAwesomeIcon icon={faSignOutAlt} className={style.headerIcon} />
+          </button>
+          </div>
         </div>
       </div>
 
