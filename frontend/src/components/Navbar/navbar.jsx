@@ -97,10 +97,10 @@ const Navbar = () => {
         {
           name: "Presença",
           icon: faChalkboardTeacher,
-          link: "/presenca-admin",
+          link: "/secretaria/presenca",
         },
-        { name: "Alunos", icon: faUserPlus, link: "/alunos" },
-        { name: "Lembretes", icon: faBell, link: "/lembretes-admin" },
+        { name: "Aluno", icon: faUserPlus, link: "/secretaria/aluno" },
+        { name: "Lembrete", icon: faBell, link: "/secretaria/lembrete" },
       ];
     }
     return [];

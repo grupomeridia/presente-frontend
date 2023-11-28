@@ -355,7 +355,7 @@ useEffect(() => {
         <section className={styles.content}>
           <div className={styles.contentHeaderBar}>
             <div className={styles.contentHeaderBarTitle}>
-              <p>Media de alunos presentes</p>
+              <p>Media de alunos frequentes</p>
               {/* <div>
                 <button type="button" onClick={() => handlePeriodButtonClick("dia")}>Dia</button>
                 <button type="button" onClick={() => handlePeriodButtonClick("semana")}>Semana</button>
@@ -434,5 +434,5 @@ useEffect(() => {
 
 }
 
-export default withAuth(Dashboard,['Secretaria']);
-
+export default (Dashboard);
+// export default withAuth(Dashboard,['Secretaria']);
