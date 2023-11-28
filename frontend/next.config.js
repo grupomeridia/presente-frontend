@@ -1,13 +1,13 @@
+const path = require('path');
+require('dotenv').config();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-}
 
-module.exports = nextConfig
-require('dotenv').config();
-
-module.exports = {
   webpack: (config, { isServer }) => {
+    config.resolve.alias['@root'] = path.join(__dirname, 'src');
+    config.resolve.alias['@components'] = path.join(__dirname, 'src/components');
     if (!isServer) {
       config.resolve.fallback = {
         fs: false,
@@ -17,3 +17,5 @@ module.exports = {
     return config;
   },
 };
+
+module.exports = nextConfig;

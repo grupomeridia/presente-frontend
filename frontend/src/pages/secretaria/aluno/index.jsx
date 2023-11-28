@@ -10,17 +10,7 @@ import { useUser } from "@/contexts/UserContext";
 import withAuth from "@/utils/auth";
 import GraficoCircular from "@/components/GraficoCircular/GraficoCircular";
 
-function Modal({
-  isOpen,
-  onClose,
-  alunoId,
-  title,
-  setTitle,
-  content,
-  setContent,
-  cargo,
-  onSend,
-}) {
+function Modal({ isOpen, onClose, alunoId, title, setTitle, content, setContent, cargo, onSend }) {
   const handleSend = () => {
     onSend(alunoId, title, content, cargo);
     onClose();
@@ -28,33 +18,18 @@ function Modal({
 
   if (!isOpen) return null;
 
-  return (
+   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
-          <input
-            type="text"
-            className={styles.modalTitleInput}
-            placeholder="Título"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <button onClick={onClose} className={styles.modalCloseButton}>
-            &times;
-          </button>
+          <input type="text" className={styles.modalTitleInput} placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <button onClick={onClose} className={styles.modalCloseButton}>&times;</button>
         </div>
         <div className={styles.modalBody}>
-          <textarea
-            className={styles.modalTextArea}
-            placeholder="Lembrete"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          <textarea className={styles.modalTextArea} placeholder="Lembrete" value={content} onChange={(e) => setContent(e.target.value)} />
         </div>
         <div className={styles.modalFooter}>
-          <button className={styles.modalSubmitButton} onClick={handleSend}>
-            Enviar
-          </button>
+          <button className={styles.modalSubmitButton} onClick={handleSend}>Enviar</button>
         </div>
       </div>
     </div>
@@ -74,6 +49,9 @@ const Aluno = () => {
   const [id, setId] = useState();
   const [chartData, setChartData] = useState(null);
   const [studentStats, setStudentStats] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredAlunos, setFilteredAlunos] = useState([]);
+  
 
   useEffect(() => {
     if (user) {
@@ -118,7 +96,7 @@ const Aluno = () => {
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: true, 
+    maintainAspectRatio: true,
     aspectRatio: 1.5,
     plugins: {
       legend: {
@@ -164,12 +142,7 @@ const Aluno = () => {
     setIsModalOpen(true);
   };
 
-  const handleSend = async (
-    destinatario_id,
-    titulo,
-    mensagem,
-    destinatario_cargo
-  ) => {
+  const handleSend = async (destinatario_id, titulo, mensagem, destinatario_cargo) => {
     const lembreteData = {
       destinatario_id,
       titulo,
@@ -178,6 +151,7 @@ const Aluno = () => {
       id_secretaria: IdSecretaria,
     };
 
+
     try {
       await api.admin.lembrete(lembreteData);
       console.log("Dados enviados com sucesso");
@@ -185,7 +159,7 @@ const Aluno = () => {
       console.error("Erro ao enviar os dados do lembrete:", error);
     }
 
-    closeModal();
+    setIsModalOpen(false);
     setTitle("");
     setContent("");
   };
@@ -194,23 +168,35 @@ const Aluno = () => {
     const fetchAlunos = async () => {
       try {
         const response = await api.aluno.listAll();
-        if (Array.isArray(response)) {
-          // Check if the response is an array
-          setAlunos(response);
-        } else if (Array.isArray(response.data)) {
-          // Or if response.data is an array
+        if (response && response.data) {
           setAlunos(response.data);
+          setFilteredAlunos(response.data);
         } else {
-          // Handle any other cases or throw an error
-          console.error("Response is not in expected format:", response);
+          console.error("Resposta não está no formato esperado:", response);
         }
       } catch (error) {
-        console.error("Fetching alunos failed: ", error);
+        console.error("Erro ao buscar alunos: ", error);
       }
     };
 
     fetchAlunos();
   }, []);
+
+
+
+  useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filteredData = alunos.filter((aluno) => {
+      const nomeMatch = aluno.nome.toLowerCase().includes(lowercasedFilter);
+      const raMatch = aluno.ra && aluno.ra.toString().toLowerCase().includes(lowercasedFilter);
+  
+      console.log(`Filtrando: Nome: ${aluno.nome}, RA: ${aluno.ra}, Match: ${nomeMatch || raMatch}`);
+  
+      return nomeMatch || raMatch;
+    });
+    setFilteredAlunos(filteredData);
+  }, [searchTerm, alunos]);
+  
 
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
@@ -254,12 +240,7 @@ const Aluno = () => {
           </div>
           <div className={styles.search_input}>
             <div>
-              <input
-                type="text"
-                placeholder="Pesquisar..."
-                // value={searchTerm}
-                // onChange={handleSearch}
-              ></input>
+            <input type="text" placeholder="Pesquisar por nome ou RA..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             </div>
           </div>
           <div className={styles.div_table}>
@@ -276,7 +257,7 @@ const Aluno = () => {
                 </tr>
               </thead>
               <tbody className={styles.tableBody}>
-                {alunos.map((aluno) => (
+                {filteredAlunos.map((aluno) => (
                   <tr key={aluno.id}>
                     {" "}
                     <td>{aluno.nome}</td>

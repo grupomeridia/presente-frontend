@@ -28,6 +28,25 @@
   .modalContent ul {
     padding: 0; /* Removes default padding */
   }
+
+  .lembreteItem {
+    position: relative;
+    padding: 10px; /* Espaçamento interno */
+    background: #fff; /* Cor de fundo */
+    margin-bottom: 10px; /* Espaçamento entre os itens */
+    border-radius: 10px; /* Bordas arredondadas */
+    
+  }
+  
+  .visualizadoIcon {
+    cursor: pointer;
+    color: #000;
+  }
+  
+  .visualizadoIcon:hover {
+    color: #3498db; /* Cor do ícone ao passar o mouse */
+  }
+  
   
 
   .modalOverlay {

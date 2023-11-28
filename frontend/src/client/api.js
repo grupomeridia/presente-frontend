@@ -20,7 +20,8 @@ const api = {
       mediaAtivosInativos: (id_turma) => httpClient.get(`/api/aluno/mediaAtivo?id_turma=`+id_turma),
       mediaPresentesAusentes: (id_turma) => httpClient.get(`/api/aluno/mediaAusente?id_turma=`+id_turma),
       statusAluno: (idAluno) => httpClient.get('/api/aluno/alunoStatus?id_aluno=' + idAluno),
-      fetchLembretes: (cargo, idAluno) => httpClient.get(`/api/lembrete/findLembrete?cargo=${cargo}&id=${idAluno}`)
+      fetchLembretes: (cargo, idAluno) => httpClient.get(`/api/lembrete/findLembrete?cargo=${cargo}&id=${idAluno}`),
+      vizualizar: (idLembrete) => httpClient.put('/api/lembrete/visualizado?id=' + idLembrete)
    },
    admin: {
       findByAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=` + id_turma),
