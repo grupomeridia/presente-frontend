@@ -1,27 +1,20 @@
-import React, { useReducer, useState } from "react";
+import React, { useReducer, useState, useEffect } from "react";
 import styles from "./style.module.css";
 import NavBar from "@/components/Navbar/navbar";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
 import { Fundo } from "@/components/Fundo/fundo";
 import Image from "next/image";
+import api from "@/client/api";
 
 import withAuth from '@/utils/auth';
 
-const initialState = {
-    turmaSelecionada: "",
-    periodoSelecionado: "",
-    projetoSelecionado: "",
-    data: "",
-    horario: "",
-    diaSemana: ""
-};
+const ChamadaForm = () => {
+    const [selectedOption, setSelectedOption] = useState("");
+    const [turmas, setTurmas] = useState([]);
+    const [professor, setProfessor] = useState([]);
+    const [professorSelecionado, setProfessorSelecionado] = useState(null);
 
-function reducer(state, action) {
-    return { ...state, [action.field]: action.value };
-}
 
-function ChamadaForm() {
-    const [state, dispatch] = useReducer(reducer, initialState);
     const handleChange = (field, value) => {
         dispatch({ field, value });
     };
@@ -30,52 +23,105 @@ function ChamadaForm() {
     };
     const [hora, setHora] = useState("");
 
-    function SelectInput({ value, onChange, options, placeholder }) {
-        return (
-            <div>
-                <select value={value} onChange={(e) => onChange(e.target.value)}>
-                    <option value="" disabled hidden>
-                        {placeholder || "Selecione uma opção"}
-                    </option>
-                    {options.map((option, index) => (
-                        <option key={index} value={option}>
-                            {option}
-                        </option>
-                    ))}
-                </select>
-            </div>
-        );
+    // function SelectInput({ value, onChange, options, placeholder }) {
+    //     return (
+    //         <div>
+    //             <select value={value} onChange={(e) => onChange(e.target.value)}>
+    //                 <option value="" disabled hidden>
+    //                     {placeholder || "Selecione uma opção"}
+    //                 </option>
+    //                 {options.map((option, index) => (
+    //                     <option key={index} value={option}>
+    //                         {option}
+    //                     </option>
+    //                 ))}
+    //             </select>
+    //         </div>
+    //     );
+    // }
+
+    const fetchProfessores = () => {
+        api.professor.listAll()
+          .then(response => {
+            setProfessor(response.data);
+            console.log('professor');
+            console.log(response.data)
+          })
+          .catch(error => {
+            console.error("Erro ao buscar dados da turma:", error);
+          });
+      }
+
+      useEffect(() => {
+        fetchProfessores();
+      }, []);
+
+    // const handleTurmaSelectChange = (event) => {
+    //     const selectedId = Number(event.target.value);
+    //     const selectedTurma = turmas.find(turma => turma.Id === selectedId);
+    //     console.log(selectedId);
+    //     console.log(selectedTurma);
+    //     if (selectedTurma) {
+    //         console.log("estamos dentro do handlerSelect de turma");
+    //     }
+    // };
+
+    const fetchTurmasByProfessor = (id) =>{
+        
     }
-    
-    
+
+    const handleProfessorSelectChange = async (event) => {
+        const selectedId = Number(event.target.value);
+        const selectProfessor = professor.find(professor => professor.id === selectedId);
+        console.log(selectedId);
+        console.log(selectProfessor);
+        if(selectProfessor){
+            console.log("Professor selecionado:", selectProfessor);
+            setProfessorSelecionado(selectProfessor); 
+
+            try{
+                const response = await api.professor.turmas(selectedId);
+                const dados = await response.json();
+            }catch(error){
+
+            }
+        }
+    }
+
     return (
         <>
-        <Cabecalho/>
-        <NavBar/>
+            <Cabecalho />
+            <NavBar />
             <Fundo className={styles.Fundo}>
                 <section className={styles.contentChamada}>
                     <div>
                         <h1>ABRIR CHAMADA</h1>
                     </div>
                     <div className={styles.inputArea}>
-                        <SelectInput
-                            value={state.turmaSelecionada}
-                            onChange={(value) => handleChange("turmaSelecionada", value)}
-                            options={["Opção 1", "Opção 2", "Opção 3"]}
-                            placeholder="Turma"
-                        />
-                        <SelectInput
-                            value={state.periodoSelecionado}
-                            onChange={(value) => handleChange("periodoSelecionado", value)}
-                            options={["Opção A", "Opção B", "Opção C"]}
-                            placeholder="Periodo"
-                        />
-                        <SelectInput
-                            value={state.projetoSelecionado}
-                            onChange={(value) => handleChange("projetoSelecionado", value)}
-                            options={["Opção K", "Opção L", "Opção G"]}
-                            placeholder="Projeto"
-                        />
+                    <div className={styles.selectCursos}>
+                            <select id="cursos" value={selectedOption} onChange={handleProfessorSelectChange}>
+                                <option value="" disabled hidden>
+                                    Professor
+                                </option>
+                                {turmas.map((turma) => (
+                                    <option key={turma.Id} value={turma.Id}>
+                                        {turma.Nome}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className={styles.selectCursos}>
+                            <select id="cursos" value={selectedOption} onChange={handleTurmaSelectChange}>
+                                <option value="" disabled hidden>
+                                    Turma
+                                </option>
+                                {turmas.map((turma) => (
+                                    <option key={turma.Id} value={turma.Id}>
+                                        {turma.Nome}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <div className={styles.a}>
                             {/* <label htmlFor="horaInput">Fecha às:</label> */}
                             <input
@@ -118,7 +164,7 @@ function ChamadaForm() {
                                             width={50}
                                             height={50}
                                         /> */}
-                                        <img className={styles.botaoFechar} src="/botao-fechar.png" width={30} height={30}  alt="" />
+                                        <img className={styles.botaoFechar} src="/botao-fechar.png" width={30} height={30} alt="" />
                                     </td>
                                 </tr>
                             </tbody>
@@ -132,7 +178,9 @@ function ChamadaForm() {
     );
 }
 
-export default withAuth(ChamadaForm,['Secretaria']);
+export default ChamadaForm;
+
+// export default withAuth(ChamadaForm,['Secretaria']);
 
 
 
