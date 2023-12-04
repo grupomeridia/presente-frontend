@@ -76,7 +76,6 @@ const api = {
          'Authorization': `Bearer ${jwt}`
      }
     }),
-    vizualizar: (idLembrete) => httpClient.put("/api/lembrete/visualizado?id=" + idLembrete),
   },
   lembrete:{
    listAll: (jwt) => httpClient.get('/api/lembrete/listAll',{
@@ -89,6 +88,16 @@ const api = {
        'Authorization': `Bearer ${jwt}`
    }
  }),
+ vizualizar: (id,jwt) => httpClient.put('/api/lembrete/visualizar?id='+ id,jwt,{
+  headers: { 
+     'Authorization': `Bearer ${jwt}`
+ }
+}),
+verVizualizados: (jwt) => httpClient.get('/api/lembrete/visualizados', {
+  headers: { 
+     'Authorization': `Bearer ${jwt}`
+ }
+}),
   },
   admin: {
     findByAusentes: (id_turma) => httpClient.get(`/api/aluno/AusentesPresentes?id_turma=` + id_turma),
