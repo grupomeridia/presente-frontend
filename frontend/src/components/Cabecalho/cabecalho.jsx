@@ -13,6 +13,13 @@ const Cabecalho = () => {
   const [lembretes, setLembretes] = useState([]);
   const [showLembretesModal, setShowLembretesModal] = useState(false);
   const [expandedLembrete, setExpandedLembrete] = useState(null);
+  const jwt = user ? user.JWT : null;
+
+  useEffect(() => {
+    if (user) {
+      const jwt = user.JWT;
+    }
+  }, [user]);
 
   const handleExpandLembrete = (lembrete) => {
     setExpandedLembrete(lembrete);
@@ -26,7 +33,7 @@ const Cabecalho = () => {
   useEffect(() => {
     if (user && user.Cargo && user.id_aluno) {
       api.aluno
-        .fetchLembretes(user.Cargo, user.id_aluno)
+        .fetchLembretes(user.Cargo, user.id_aluno,jwt)
         .then((response) => {
           // Se a resposta for um objeto, mas você espera um array, converta-o em um array
           const data = response.data;

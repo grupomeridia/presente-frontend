@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useUser } from "@/contexts/UserContext";
 import { Fundo } from "@/components/Fundo/fundo";
 import styles from "./style.module.css";
 import Navbar from "@/components/Navbar/navbar";
@@ -15,6 +16,8 @@ import withAuth from '@/utils/auth';
 import api from "@/client/api";
 
 const Cadastrar = () => {
+  const { user } = useUser();
+  const jwt = user ? user.JWT : null;
   const [activeForm, setActiveForm] = useState(null);
   const [cargo, setCargo] = useState("");
   const [SelectedCargo, setSelectedCargo] = useState(null);
@@ -44,6 +47,14 @@ const Cadastrar = () => {
   const [ultimaChamada, setUltimaChamada] = useState(null);
   const [IdProfessorAntigaChamada,setIdProfessorAntigaChamada] = useState();
 
+  useEffect(() => {
+    if (user) {
+      const id_aluno = user.id_aluno;
+      const jwt = user.JWT;
+
+    }
+  }, [user]);
+  
   const resetFormStates = () => {
     setCargo("");
     setSelectedCargo("");
@@ -101,7 +112,7 @@ const Cadastrar = () => {
 
 const fetchTurmas = () => {
   api.turma
-    .listAll()
+    .listAll(jwt)
     .then((response) => {
       setServerResponse(response.data);
       setButtonClicked(true);
@@ -116,12 +127,12 @@ const fetchTurmas = () => {
 };
 
 useEffect(() => {
-  fetchTurmas();
-}, []);
+  fetchTurmas(jwt);
+}, [jwt]);
 
 const fetchMaterias = () => {
   api.materia
-    .listAll()
+    .listAll(jwt)
     .then((response) => {
       setServerResponse(response.data);
       setButtonClicked(true);
@@ -136,8 +147,8 @@ const fetchMaterias = () => {
 };
 
 useEffect(() => {
-  fetchMaterias();
-}, []);
+  fetchMaterias(jwt);
+}, [jwt]);
 
 
   /////
@@ -158,7 +169,7 @@ useEffect(() => {
     console.log("Payload:", payload);
   
     api.turma
-      .create(payload)
+      .create(payload,jwt)
       .then((response) => {
         // alert("Turma criada com sucesso!");
         console.log(response.data);
@@ -166,7 +177,7 @@ useEffect(() => {
         setButtonClicked(true);
 
         setTimeout(function() {
-        fetchTurmas();
+        fetchTurmas(jwt);
         }, 2000);
 
         setNomeTurma("");
@@ -193,14 +204,14 @@ useEffect(() => {
     console.log("Payload:", payload);
   
     api.materia
-      .create(payload)
+      .create(payload,jwt)
       .then((response) => {
         // alert("Matéria criada com sucesso!");
         
         // setMaterias([...materias, response.data]);
         
         setTimeout(function() {
-          fetchMaterias();
+          fetchMaterias(jwt);
         }, 2000); 
 
         setNomeMateria("");
@@ -242,7 +253,7 @@ useEffect(() => {
     console.log("Payload CriarUsuario:", payload);
 
     api.usuario
-      .create(payload)
+      .create(payload,jwt)
       .then((response) => {
         console.log("AQUIIIIIIIIIII",response.data);
         // alert("Usuário criado com sucesso!");
@@ -260,7 +271,7 @@ useEffect(() => {
 
          userId = response.data.id_professor;
          setIdProfessor(userId);
-         CadastrarProfessorouAlunoNaTurma(userId);
+         CadastrarProfessorouAlunoNaTurma(userId,jwt);
          setServerResponse(response.data);
           setButtonClicked(true);
          resetFormStates();
@@ -269,7 +280,7 @@ useEffect(() => {
         else if(cargo == 'Aluno'){
           userId = response.data.id_aluno;
           setIdAluno(userId);
-          CadastrarProfessorouAlunoNaTurma(userId);
+          CadastrarProfessorouAlunoNaTurma(userId,jwt);
           setServerResponse(response.data);
           setButtonClicked(true);
           resetFormStates();
@@ -310,7 +321,7 @@ useEffect(() => {
       );
 
       api.turma
-        .professorNaTurma(payload)
+        .professorNaTurma(payload,jwt)
         .then((response) => {
           console.log(response.data);
           setServerResponse(response.data);
@@ -334,7 +345,7 @@ useEffect(() => {
       console.log("Enviando payload Cadastramento de Aluno na turma:", payload);
 
       api.turma
-        .alunoNaTurma(payload)
+        .alunoNaTurma(payload,jwt)
         .then((response) => {
           console.log(response.data);
           setServerResponse(response.data);
@@ -466,7 +477,7 @@ useEffect(() => {
               <input
                 id="senha"
                 className={styles.input}
-                type="password" // Mudar para 'password' para esconder a senha
+                type="password"
                 placeholder="Informe a senha"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
