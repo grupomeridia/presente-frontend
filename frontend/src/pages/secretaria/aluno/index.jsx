@@ -345,4 +345,4 @@ const Aluno = () => {
   );
 };
 
-export default Aluno;
+export default withAuth (Aluno, ['Secretaria']);

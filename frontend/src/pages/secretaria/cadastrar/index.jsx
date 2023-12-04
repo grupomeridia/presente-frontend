@@ -672,4 +672,4 @@ useEffect(() => {
   );
 }
 
-export default Cadastrar;
+export default withAuth (Cadastrar, ["Secretaria"]);

@@ -32,7 +32,7 @@ function Modal({ isOpen, onClose, title, content }) {
   );
 }
 
-const Aluno = () => {
+const Lembrete = () => {
   const [lembretes, setLembretes] = useState([]);
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState("");
@@ -140,4 +140,4 @@ const Aluno = () => {
   );
 };
 
-export default Aluno;
+export default withAuth(Lembrete, ["Secretaria"]);

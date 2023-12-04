@@ -461,5 +461,5 @@ useEffect(() => {
 
 }
 
-export default (Dashboard);
-// export default withAuth(Dashboard,['Secretaria']);
+
+ export default withAuth(Dashboard,['Secretaria']);
