@@ -47,8 +47,6 @@ const Frequencia = () => {
     }
   }, [user]);
 
-
-  
   const fetchChamadasAbertas = () => {
     api.professor
       .chamadasAbertas(idProfessor,jwt)

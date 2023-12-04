@@ -135,4 +135,5 @@ const historicoAluno = () => {
 
 }
 
-export default  withAuth(historicoAluno,['Aluno']);
+// export default  withAuth(historicoAluno,['Aluno']);
+export default  historicoAluno;

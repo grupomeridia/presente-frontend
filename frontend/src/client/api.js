@@ -86,6 +86,7 @@ const api = {
    FindById: (id,jwt) => httpClient.get('/api/lembrete?id='+ id,{
     headers: { 
        'Authorization': `Bearer ${jwt}`
+
    }
  }),
  vizualizar: (id,jwt) => httpClient.put('/api/lembrete/visualizar?id='+ id,jwt,{
