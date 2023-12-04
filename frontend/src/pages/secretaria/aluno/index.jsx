@@ -219,7 +219,7 @@ const Aluno = () => {
       <Cabecalho />
       <section className={styles.page_content}>
         <section className={styles.inner_content}>
-          <div className={styles.filterButtons}>
+          {/* <div className={styles.filterButtons}>
             <button
               className={`${styles.filterButton} ${
                 activeFilter === "ausentes" ? styles.active : ""
@@ -244,7 +244,7 @@ const Aluno = () => {
             >
               A chegar
             </button>
-          </div>
+          </div> */}
           <div className={styles.search_input}>
             <div>
             <input type="text" placeholder="Pesquisar por nome ou RA..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />

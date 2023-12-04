@@ -25,8 +25,19 @@
     height: auto; /* mantém a proporção da imagem */
   }
 
+  .tirar{
+    margin-bottom: 5px;
+    margin-top: 5;
+  }
+
+  .tirarr{
+    margin-bottom: 10px;
+    margin-top: 0;
+  }
+
   .modalContent ul {
-    padding: 0; /* Removes default padding */
+    padding: 0;
+    margin: 0; /* Removes default padding */
   }
 
   .lembreteItem {
