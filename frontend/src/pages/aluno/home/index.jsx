@@ -12,9 +12,11 @@ function presencaAluno() {
   const { user } = useUser();
   // const [aluno, setALuno] = useState(1);
   const [chamadasAbertas, setChamadasAbertas] = useState([]);
+  
   const [historico, setHistorico] = useState([]);
   const id_aluno = user ? user.id_aluno : null;
   const ra = user ? user.RA : null;
+  const jwt = user ? user.JWT : null;
   const [ServerResponse, setServerResponse] = useState("");
 
   historico.reverse();
@@ -23,12 +25,13 @@ function presencaAluno() {
     if (user) {
       const id_aluno = user.id_aluno;
       const ra = user.RA;
+      const jwt = user.JWT;
     }
   }, [user]);
 
   const fetchChamadasAbertas = () => {
     api.aluno
-      .chamadasAbertas(id_aluno)
+      .chamadasAbertas(id_aluno,jwt)
       .then((response) => {
         console.log(response.data);
         setChamadasAbertas(response.data);
@@ -41,9 +44,9 @@ function presencaAluno() {
     };
 
     useEffect(() => {
-      fetchChamadasAbertas();
-      fetchPresencasAluno();
-    }, [id_aluno]);
+      fetchChamadasAbertas(id_aluno,jwt);
+      fetchPresencasAluno(id_aluno,jwt);
+    }, [id_aluno,jwt]);
 
   const fazerChamada = (id_chamada) => {
     // if (!ra) {
@@ -53,16 +56,20 @@ function presencaAluno() {
 
     const body = {
       ra: parseInt(ra, 10),
+      id_aluno: id_aluno,
+      id_chamada: id_chamada,
+      tipo_presenca: "Regular",
+      horario: null
     };
 
     console.log(ra);
 
     api.aluno
-      .presenca(body)
+      .presencaAluno(body,jwt)
       .then((response) => {
         console.log("Chamada marcada com sucesso:", response.data);
         setServerResponse(response.data);
-        fetchChamadasAbertas();
+        fetchChamadasAbertas(id_aluno,jwt);
         fetchPresencasAluno();
       })
       .catch((error) => {
@@ -76,7 +83,7 @@ function presencaAluno() {
 
   const fetchPresencasAluno = () => {
     api.aluno
-      .findChamadaByAluno(id_aluno)
+      .findChamadaByAluno(id_aluno,jwt)
       .then((response) => {
         setHistorico(response.data);
         console.log(response.data);
@@ -88,7 +95,7 @@ function presencaAluno() {
 
   useEffect(() => {
     fetchPresencasAluno();
-  }, [id_aluno]);
+  }, [id_aluno,jwt]);
 
   return (
     <div>
@@ -118,7 +125,7 @@ function presencaAluno() {
                       <td className={styles.cell}>
                         <button
                           className={styles.botaoRealizaChamada}
-                          onClick={() => fazerChamada(chamada.id_chamada)}
+                          onClick={() => fazerChamada(chamada.id_chamada,jwt)}
                         >
                           Marcar Presenca
                         </button>

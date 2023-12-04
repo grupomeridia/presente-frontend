@@ -1,24 +1,42 @@
+
+import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar/navbar";
 import styles from "./style.module.css";
 import { Fundo } from "@/components/Fundo/fundo";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
-import React, { useState } from "react";
+import { useUser } from "@/contexts/UserContext";
 
 import api from "@/client/api";
 import withAuth from "@/utils/auth";
 
 const Presenca = () => {
+  const { user } = useUser();
+  const jwt = user ? user.JWT : null;
+  const cargo = user ? user.Cargo : null;
+  const id_professor = user ? user.id_professor : null;
   const [ra, setRa] = useState(null);
   const [serverResponse, setServerResponse] = useState(null);
   const [buttonClicked, setButtonClicked] = useState(false);
 
+
+  useEffect(() => {
+    if (user) {
+      const jwt = user.JWT;
+      const cargo = user.Cargo
+      const id_professor = user.id_professor
+    }
+  }, [user]);
+
+
   const MarcarPresenca = () => {
     const body = {
       ra: parseInt(ra, 10),
+      cargo_manual: cargo,
+      id_manual:id_professor,
     };
 
     api.professor
-      .presenca(body)
+      .presenca(body,jwt)
       .then((response) => {
         console.log("Chamada marcada com sucesso:", response.data);
         setServerResponse(response.data);

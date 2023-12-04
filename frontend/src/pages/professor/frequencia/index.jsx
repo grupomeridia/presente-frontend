@@ -22,6 +22,7 @@ const Frequencia = () => {
   const [numAlunosData, setNumAlunosData] = useState(null);
   const { user } = useUser();
   const [idProfessor, setIdProfessor] = useState(user ? user.id_professor : null);
+  const jwt = user ? user.JWT : null;
   const [id,setId] = useState();
   const [idChamada, setIdChamada] = useState();
   const [presentes, setPresentes] = useState();
@@ -41,13 +42,14 @@ const Frequencia = () => {
     if (user) {
       console.log("User:", user);
       setIdProfessor(user.id_professor);
+      const jwt = user.JWT;
       console.log("aqui ta o idProfessor:",idProfessor);
     }
   }, [user]);
 
   const fetchChamadasAbertas = () => {
     api.professor
-      .chamadasAbertas(idProfessor)
+      .chamadasAbertas(idProfessor,jwt)
       .then((response) => {
         console.log(response.data);
         setChamadasAbertas(response.data);
@@ -59,18 +61,23 @@ const Frequencia = () => {
         console.error("Erro ao buscar as chamadas abertas:", error);
       });
   }
-
+  
   useEffect(() => {
-    api.professor
-      .chamadasAbertas(idProfessor)
-      .then((response) => {
-        console.log(response.data[0].id_chamada)
-        setIdChamada(response.data[0].id_chamada);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar as chamadas abertas:", error);
-      });
+    fetchChamadasAbertas();
   }, []);
+
+  
+  // useEffect(() => {
+  //   api.professor
+  //     .chamadasAbertas(idProfessor)
+  //     .then((response) => {
+  //       console.log(response.data[0].id_chamada)
+  //       setIdChamada(response.data[0].id_chamada);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Erro ao buscar as chamadas abertas:", error);
+  //     });
+  // }, []);
   
   
   const startLoadingProgress = () => {
@@ -110,7 +117,7 @@ const Frequencia = () => {
   const fetchDados = () => {
     return new Promise((resolve, reject) => {
       api.professor
-        .frequencia(idProfessor, idChamada)
+        .frequencia(idProfessor,idChamada,jwt)
         .then((response) => {
           console.log("Dados recebidos para a frequência:", response.data);
           setNumAlunosData(response.data);
@@ -190,7 +197,7 @@ const Frequencia = () => {
 
   const fetchPorcentagemPresenca = () => {
     api.professor
-      .historicoSemanal(turma)
+      .historicoSemanal(turma,jwt)
       .then((response) => {
         console.log("Resposta completa:", response);
         console.log("Dados da resposta:", response.data);
@@ -228,7 +235,7 @@ const Frequencia = () => {
 
   const fetchMediaSemanal = () => {
     api.professor
-      .mediaSemanal(turma)
+      .mediaSemanal(turma,jwt)
       .then((response) => {
         console.log("Dados da resposta:", response.data);
         setMediaSemanalData(response.data);

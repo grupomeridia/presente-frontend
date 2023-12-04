@@ -37,6 +37,8 @@ function Modal({ isOpen, onClose, alunoId, title, setTitle, content, setContent,
 }
 
 const Aluno = () => {
+  const { user } = useUser();
+  const jwt = user ? user.JWT : null;
   const [alunos, setAlunos] = useState([]);
   const [activeFilter, setActiveFilter] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,21 +46,23 @@ const Aluno = () => {
   const [selectedCargo, setSelectedCargo] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const { user } = useUser();
   const IdSecretaria = user && user.id_secretaria;
   const [id, setId] = useState();
   const [chartData, setChartData] = useState(null);
   const [studentStats, setStudentStats] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredAlunos, setFilteredAlunos] = useState([]);
-  
+  const [errorMessage, setErrorMessage] = useState("");
+
 
   useEffect(() => {
     if (user) {
-      console.log("User:", user);
+      // console.log("User:", user);
       setId(user.id_secretaria);
+      const jwt = user.JWT;
     }
   }, [user]);
+
 
   const prepareChartData = (response) => {
     // Inicialize as variáveis que você espera dos dados
@@ -117,20 +121,23 @@ const Aluno = () => {
 
   const handleShowStats = async (idAluno) => {
     try {
-      const response = await api.aluno.statusAluno(idAluno);
-      if (response.status === 200) {
+      const response = await api.aluno.statusAluno(idAluno,jwt);
+      if (response.status === 200 && response.data.frequencia !== undefined) {
         setStudentStats({
           ...response.data,
           presencas: 100 - response.data.faltas,
         });
+        setErrorMessage(""); // Resetar a mensagem de erro
+      } else {
+        setErrorMessage(response.data.mensagem); // Configurar a mensagem de erro
+        setStudentStats(null); // Resetar as estatísticas
       }
-      // Log o estado após a atualização para depuração
-      console.log("Dados de estatísticas recebidos:", response.data);
-      console.log("Dados de estatísticas recebidos:", data);
     } catch (error) {
       console.error("Erro ao buscar estatísticas:", error);
+      setErrorMessage(error.response?.data?.mensagem || "Erro ao buscar estatísticas."); // Configurar a mensagem de erro
     }
   };
+
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -153,7 +160,7 @@ const Aluno = () => {
 
 
     try {
-      await api.admin.lembrete(lembreteData);
+      await api.admin.lembrete(lembreteData,jwt);
       console.log("Dados enviados com sucesso");
     } catch (error) {
       console.error("Erro ao enviar os dados do lembrete:", error);
@@ -167,7 +174,7 @@ const Aluno = () => {
   useEffect(() => {
     const fetchAlunos = async () => {
       try {
-        const response = await api.aluno.listAll();
+        const response = await api.aluno.listAll(jwt);
         if (response && response.data) {
           setAlunos(response.data);
           setFilteredAlunos(response.data);
@@ -212,7 +219,7 @@ const Aluno = () => {
       <Cabecalho />
       <section className={styles.page_content}>
         <section className={styles.inner_content}>
-          <div className={styles.filterButtons}>
+          {/* <div className={styles.filterButtons}>
             <button
               className={`${styles.filterButton} ${
                 activeFilter === "ausentes" ? styles.active : ""
@@ -237,7 +244,7 @@ const Aluno = () => {
             >
               A chegar
             </button>
-          </div>
+          </div> */}
           <div className={styles.search_input}>
             <div>
             <input type="text" placeholder="Pesquisar por nome ou RA..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
@@ -296,7 +303,11 @@ const Aluno = () => {
       </section>
 
       <Fundo>
+      {errorMessage && (
+      <h1 className={styles.errorMessage}>{errorMessage}</h1>
+    )}
         {studentStats && (
+          
           <div className={styles.fundoContainer}>
             <div className={styles.cardContainer}>
               <div className={styles.chartSection}>
