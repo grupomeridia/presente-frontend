@@ -451,9 +451,9 @@ const Chamada = () => {
             <tbody>
               {chamadas.map((chamada) => (
                 <tr key={chamada.id}>
-                  <td>{chamada.Turma}</td>
+                  <td>{chamada.nome_turma}</td>
                   <td>{chamada.nome_materia}</td>
-                  <td>{chamada.Professor}</td>
+                  <td>{chamada.nome_professor}</td>
                   <td>{chamada.abertura}</td>
                   <td>
                     {chamada.encerramento !== null
@@ -461,7 +461,7 @@ const Chamada = () => {
                       : "não definido"}
                   </td>
                   <td>
-                    <button onClick={() => fecharChamada(chamada.Id, jwt)}>
+                    <button onClick={() => fecharChamada(chamada.id_chamada, jwt)}>
                       Encerrar
                     </button>
                   </td>
