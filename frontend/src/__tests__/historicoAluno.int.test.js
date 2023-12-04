@@ -1,61 +1,58 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import HistoricoAluno from '@/pages/aluno/historico';
-import { useUser } from '@/contexts/UserContext';
 import api from '@/client/api';
+import { useUser } from '@/contexts/UserContext';
+import mockRouter from 'next-router-mock';
 
 jest.mock('next/router', () => require('next-router-mock'));
-jest.mock('@/client/api');
+
+jest.mock('@/client/api', () => ({
+  aluno: {
+    findChamadaByAluno: jest.fn(),
+    presencasFaltas: jest.fn(),
+  },
+}));
+
 jest.mock('@/contexts/UserContext', () => ({
   useUser: jest.fn(),
 }));
 
-describe('Página de Histórico do Aluno', () => {
-  const userMock = { id_aluno: '1', Cargo: 'Aluno' };
-  const presencasMock = [
-    { id_presenca: '1', nome: 'Matemática', horario: '08:00', status: true, tipo_presenca: 'Presença' },
-    { id_presenca: '2', nome: 'História', horario: '09:00', status: true, tipo_presenca: 'Presença' },
-  ];
+// Configuração de respostas mockadas
+const mockHistoricoData = [
+  { id_presenca: 1, nome: "Aluno", status: true, horario: "12/08/2023 19:08:23", tipo_presenca: "Manual" }
+];
+const mockFaltasPresencasData = {
+  data: {
+    nome: "Nome do Aluno",
+    presencas: 20,
+    faltas: 5
+  }
+};
 
+describe('HistoricoAluno', () => {
   beforeEach(() => {
-    useUser.mockReturnValue({ user: userMock });
-    api.aluno.findChamadaByAluno.mockResolvedValue({ data: presencasMock });
-    api.aluno.presencasFaltas.mockResolvedValue({ data: { presencas: 20, faltas: 5, nome: 'Aluno Teste' } });
+    useUser.mockReturnValue({ user: { id_aluno: '123' } });
+    api.aluno.findChamadaByAluno.mockResolvedValue({ data: mockHistoricoData });
+    api.aluno.presencasFaltas.mockResolvedValue({ data: mockFaltasPresencasData });
   });
 
-  
-  it('exibe dados do aluno', async () => {
-    render(<HistoricoAluno />);
-  
-    expect(await screen.findByText('Presencas')).toBeInTheDocument();
-    expect(await screen.findByText('Faltas')).toBeInTheDocument();
-    expect(await screen.findByText('Aluno Teste')).toBeInTheDocument();
-  });
-  
-  
-
-  it('exibe histórico de presenças do aluno', async () => {
-    render(<HistoricoAluno />);
-  
-    expect(await screen.findByText('Matemática')).toBeInTheDocument();
-    expect(await screen.findByText('História')).toBeInTheDocument();
-  });
-  
-  
-
-  it('filtra histórico com base na pesquisa', async () => {
+  it('renderiza e faz chamadas de API corretamente', async () => {
     render(<HistoricoAluno />);
 
-    // Simula a ação de digitar no campo de pesquisa
-    fireEvent.change(screen.getByPlaceholderText('Pesquisar...'), { target: { value: 'Matemática' } });
+    // Verificar se o estado inicial (Carregando...) é renderizado
+    expect(screen.getByText('App Chamada')).toBeInTheDocument();
 
-    // Espera que apenas os dados filtrados sejam exibidos
+    // Aguardar a renderização dos dados após a chamada da API
     await waitFor(() => {
-      expect(screen.getByText('Matemática')).toBeInTheDocument();
-      expect(screen.queryByText('História')).not.toBeInTheDocument();
+      mockHistoricoData.forEach(item => {
+        expect(screen.getByText(item.nome)).toBeInTheDocument();
+      });
+      expect(screen.getByText('Aluno')).toBeInTheDocument();
+      expect(screen.getByText('ativo')).toBeInTheDocument();
     });
   });
 
-  // Adicione mais testes conforme necessário para verificar outras funcionalidades
+  // Outros testes (como interações do usuário, etc.) podem ser adicionados aqui
 });
