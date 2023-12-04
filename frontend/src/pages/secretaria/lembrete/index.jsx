@@ -66,15 +66,16 @@ const Aluno = () => {
   const { user } = useUser();
   const IdSecretaria = user && user.id_secretaria;
   const [id, setId] = useState();
+  const jwt = user ? user.JWT : null;
 
 
   useEffect(() => {
     if (user) {
       console.log("User:", user);
       setId(user.id_secretaria);
+      const jwt = user.JWT;
     }
   }, [user]);
-
 
 
   return (
