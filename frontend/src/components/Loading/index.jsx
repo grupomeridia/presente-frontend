@@ -8,6 +8,7 @@ const LoadingBar = ({ progress }) => {
       <div
         className={styles.progressBar}
         style={{ width: `${progress}%` }}
+        data-testid="progress-bar"
       ></div>
     </div>
   );
