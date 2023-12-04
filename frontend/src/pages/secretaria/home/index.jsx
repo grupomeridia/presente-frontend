@@ -11,23 +11,33 @@ import GraficoBarra from "@/components/GraficoBarra/GraficoBarra";
 import api from "@/client/api";
 import { sendError } from "next/dist/server/api-utils";
 import withAuth from "@/utils/auth";
+import { useUser } from "@/contexts/UserContext";
 
 Chart.register(ChartDataLabels);
 
 const Dashboard = () => {
+  const { user } = useUser();
+  const jwt = user ? user.JWT : null;
   const [selectedOption, setSelectedOption] = useState("");
   const [data, setData] = useState(new Date());
   const [labelGraf, setLabelGraf] = useState(["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]);
   const [barThick, setBarThick] = useState(100);
   const [periodType, setPeriodType] = useState("dia");
-
   const [turmas, setTurmas] = useState([]);
   const [selectedName, setSelectedName] = useState("");
-
   const [mediaAlunosFrequentes, setMediaAlunosFrequentes] = useState([]);
   const [mediaAlunosPresentesAusentes, setMediaAlunosPresentesAusentes] = useState([]);
   const [turmaPresentesAusentes, setTurmaPresentesAusentes] = useState([]);
   const [turmaAtivosInativos, setTurmaAtivosInativos] = useState([]);
+
+
+
+  useEffect(() => {
+    if (user) {
+      const jwt = user.JWT;
+    }
+  }, [user]);
+
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -38,7 +48,7 @@ const Dashboard = () => {
   }, []);
 
   const fetchTurmas = () => {
-    api.turma.listAll()
+    api.turma.listAll(jwt)
       .then(response => {
         setTurmas(response.data);
         console.log('turmas');
@@ -50,11 +60,11 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    fetchTurmas();
-  }, []);
+    fetchTurmas(jwt);
+  }, [jwt]);
 
   const fetchTurmaPresentesAusentes = (selectedId) => {
-    api.aluno.presentesAusentes(selectedId)
+    api.aluno.presentesAusentes(selectedId,jwt)
       .then(response => {
         setTurmaPresentesAusentes(response.data);
         console.log('ausentes presentes');
@@ -65,8 +75,13 @@ const Dashboard = () => {
       });
   };
 
+  
+  useEffect(() => {
+    fetchTurmaPresentesAusentes(jwt);
+  }, [jwt]);
+
   const fetchTurmaAtivosInativos = (selectedId) => {
-    api.aluno.ativosInativos(selectedId)
+    api.aluno.ativosInativos(selectedId,jwt)
       .then(response => {
         setTurmaAtivosInativos(response.data);
         console.log('ativos inativos');
@@ -77,8 +92,12 @@ const Dashboard = () => {
       })
   };
 
+  useEffect(() => {
+    fetchTurmaPresentesAusentes(jwt);
+  }, [jwt]);
+
   const fetchMediaAtivosInativos = (selectedId) => {
-    api.aluno.mediaAtivosInativos(selectedId)
+    api.aluno.mediaAtivosInativos(selectedId,jwt)
       .then(response => {
         setMediaAlunosFrequentes(response.data.media_alunos_frequentes);
         console.log('media frequentes');
@@ -89,8 +108,12 @@ const Dashboard = () => {
       })
   };
 
+  useEffect(() => {
+    fetchMediaAtivosInativos(jwt);
+  }, [jwt]);
+
   const fetchMediaPresentesAusentes = (selectedId) => {
-    api.aluno.mediaPresentesAusentes(selectedId)
+    api.aluno.mediaPresentesAusentes(selectedId,jwt)
       .then(response => {
         setMediaAlunosPresentesAusentes(response.data.media_alunos_ausentes);
         console.log(response.data);
@@ -100,6 +123,10 @@ const Dashboard = () => {
       })
   };
 
+  useEffect(() => {
+    fetchMediaPresentesAusentes(jwt);
+  }, [jwt]);
+
   const handleSelectChange = (event) => {
     const selectedId = Number(event.target.value);
     const selectedTurma = turmas.find(turma => turma.Id === selectedId);
@@ -108,10 +135,10 @@ const Dashboard = () => {
     if (selectedTurma) {
       setSelectedOption(selectedId);
       setSelectedName(selectedTurma.Nome);
-      fetchTurmaPresentesAusentes(selectedId);
-      fetchTurmaAtivosInativos(selectedId);
-      fetchMediaAtivosInativos(selectedId);
-      fetchMediaPresentesAusentes(selectedId);
+      fetchTurmaPresentesAusentes(selectedId,jwt);
+      fetchTurmaAtivosInativos(selectedId,jwt);
+      fetchMediaAtivosInativos(selectedId,jwt);
+      fetchMediaPresentesAusentes(selectedId,jwt);
     }
 
   };
@@ -434,5 +461,5 @@ useEffect(() => {
 
 }
 
-export default withAuth(Dashboard,['Secretaria']);
-
+export default (Dashboard);
+// export default withAuth(Dashboard,['Secretaria']);

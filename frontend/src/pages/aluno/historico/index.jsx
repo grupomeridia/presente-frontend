@@ -13,22 +13,28 @@ const historicoAluno = () => {
 
     const { user } = useUser();
     const id_aluno = user ? user.id_aluno : null;
+    const jwt = user ? user.JWT : null;
     const [historico, setHistorico] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [historicoFiltrada, setHistoricoFiltrada] = useState([]);
     const [faltasPresencas, setFaltasPresencas] = useState();
     const [ServerResponse, setServerResponse] = useState("");
+    const [setJwt] = useState("");
+    
 
     historico.reverse();
     
     useEffect(() => {
         if (user) {
           const id_aluno = user.id_aluno;
+          const jwt = user.JWT;
+
         }
       }, [user]);
 
+
     const fetchPresencasAluno = () => {
-        api.aluno.findChamadaByAluno(id_aluno)
+        api.aluno.findChamadaByAluno(id_aluno,jwt)
             .then(response => {
                 setHistorico(response.data);
                 setHistoricoFiltrada(response.data);
@@ -40,7 +46,7 @@ const historicoAluno = () => {
     };
 
     const fetchFaltasPresencas = () => {
-        api.aluno.presencasFaltas(id_aluno)
+        api.aluno.presencasFaltas(id_aluno,jwt)
             .then(response => {
                 setFaltasPresencas(response.data);
                 console.log(`presencas faltas ` + response.data);

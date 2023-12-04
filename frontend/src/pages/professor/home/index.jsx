@@ -13,6 +13,7 @@ import { invokeCallback } from "@/utils/sending";
 const Chamada = () => {
   const { user } = useUser();
   const IdProfessor = user && user.id_professor;
+  const jwt = user ? user.JWT : null;
   const [id, setId] = useState();
   const [turmas, setTurmas] = useState([]);
   const [projetos, setProjetos] = useState([]);
@@ -23,20 +24,59 @@ const Chamada = () => {
   const [chamadasAbertas, setChamadasAbertas] = useState([]);
   const [dataAbertura, setDataAbertura] = useState(null);
   const [buttonClicked, setButtonClicked] = useState(false);
-  
+  const [chamadaStatus,setChamadaStatus] = useState()
 
   useEffect(() => {
     if (user) {
         console.log("User:", user);
+        const jwt = user.JWT;
         setId(user.id_professor);
     }
 }, [user]);
+
+const validarDatas = () => {
+  // if (!dataAbertura || !dataEncerramento) {
+  //   alert("Por favor, defina as datas de abertura e encerramento.");
+  //   return false;
+  // }
+
+  const inicio = new Date(dataAbertura);
+  const fim = new Date(dataEncerramento);
+
+  if (inicio >= fim) {
+    alert("A data de abertura deve ser anterior à data de encerramento.");
+    return false;
+  }
+
+  return true;
+};
+
+const agendarChamada = () => {
+  if (!validarDatas()) return;
+
+  const agora = new Date();
+  const inicio = new Date(dataAbertura);
+  const fim = new Date(dataEncerramento);
+  
+  const tempoParaAbrir = inicio.getTime() - agora.getTime();
+  const tempoParaFechar = fim.getTime() - agora.getTime();
+
+  if (tempoParaAbrir > 0) {
+    setTimeout(() => abrirChamada(), tempoParaAbrir);
+  } else {
+    abrirChamada();
+  }
+
+  if (tempoParaFechar > 0) {
+    setTimeout(() => fecharChamada(), tempoParaFechar);
+  }
+};
 
 
 useEffect(() => {
   const fetchData = async () => {
     try {
-      const turmaResponse = await api.professor.turmas(IdProfessor);
+      const turmaResponse = await api.professor.turmas(IdProfessor,jwt);
       setTurmas(turmaResponse.data);
 
       const projetosData = turmaResponse.data.map((turma) => ({
@@ -60,7 +100,7 @@ useEffect(() => {
 
   useEffect(() => {
     api.professor
-      .turmas(IdProfessor)
+      .turmas(IdProfessor,jwt)
       .then((response) => {
         console.log(response.data);
         setTurmas(response.data);
@@ -80,7 +120,7 @@ useEffect(() => {
 
   useEffect(() => {
     api.professor
-      .chamadasAbertas(IdProfessor)
+      .chamadasAbertas(IdProfessor,jwt)
       .then((response) => {
         console.log(response.data);
         setChamadasAbertas(response.data);
@@ -106,17 +146,18 @@ useEffect(() => {
       // id_materia: selectedProjeto,
       encerramento: formatData(dataEncerramento) || null,
       abertura: formatData(dataAbertura) || null,
+      status: true
     };
 
     console.log("Enviando payload:", payload);
 
     api.chamada
-      .create(payload)
+      .create(payload,jwt)
       .then((response) => {
         console.log("Resposta da chamada:", response.data);
         setServerResponse(response.data);
         setButtonClicked(true);
-        return api.professor.chamadasAbertas(IdProfessor);
+        return api.professor.chamadasAbertas(IdProfessor,jwt);
       })
       .then((response) => {
         setChamadasAbertas(response.data);
@@ -133,13 +174,17 @@ useEffect(() => {
 
   // Fechar chamada
 
-  const fecharChamada = (idChamada) => {
+  const fecharChamada = (idChamada,jwt) => {
     api.chamada
-      .fecharChamada(idChamada)
+      .fecharChamada(idChamada,jwt,{
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      })
       .then((response) => {
         console.log("Chamada encerrada com sucesso:", response.data);
         setServerResponse(response.data);
-        return api.professor.chamadasAbertas(IdProfessor);
+        return api.professor.chamadasAbertas(IdProfessor,jwt);
       })
       .then((response) => {
         setChamadasAbertas(response.data);
@@ -276,7 +321,7 @@ useEffect(() => {
                       : "não definido"}
                   </td>
                   <td>
-                    <button onClick={() => fecharChamada(chamada.id_chamada)}>
+                    <button onClick={() => fecharChamada(chamada.id_chamada,jwt)}>
                       Encerrar
                     </button>
                   </td>
