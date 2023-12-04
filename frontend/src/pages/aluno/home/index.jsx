@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import api from "@/client/api";
 import styles from "./style.module.css";
 import Navbar from "@/components/Navbar/navbar";
-import Footer from "@/components/Footer/Footer";
 import Cabecalho from "@/components/Cabecalho/cabecalho";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import withAuth from "@/utils/auth";
